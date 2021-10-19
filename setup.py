@@ -46,3 +46,10 @@ for row in range(len(df_student)):
 # print(df_course[df_course["수강횟수"] != 0].sort_values(by=['교과목명'], axis=0))
 
 # 4. 수강횟수가 반영된 강좌개설정보를 전공분야코드별로 엑셀에 저장
+# 4-1. 전공분야코드를
+df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
+df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개설학기'])
+print(df_major_code)
+# 4-1. 전공분야코드 중복 제거
+list_major_code = list(set(df_course["전공분야코드"].values.tolist()))
+print(list_major_code)

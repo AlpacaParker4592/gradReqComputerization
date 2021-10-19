@@ -78,7 +78,7 @@ def summarize_course(ex_num):
         course = pd.concat([course_undergraduate, course_graduate])
 
     # 2. 개설강좌정보 중 필요한 컬럼만 추출 및 컬럼 내 데이터 추출
-    course = course[['년도', '교과목-분반', '교과목명', '강/실/학']].copy()
+    course = course[['년도', '학기', '교과목-분반', '교과목명', '강/실/학']].copy()
 
     course['전공분야코드'] = course['교과목-분반'].str[0:2]
     course['난이도'] = course['교과목-분반'].str[2]
@@ -86,14 +86,20 @@ def summarize_course(ex_num):
     course['학점'] = course['강/실/학'].str[-1]
 
     # 3. 필요한 컬럼만 수집 및 중복되는 데이터 제거
-    course = course[['년도', '전공분야코드', '난이도', '일련번호', '학점', '교과목명']].drop_duplicates()
+    course = course[['년도', '학기', '전공분야코드', '난이도', '일련번호', '학점', '교과목명']].drop_duplicates()
+
+    # 3+. 학기 명칭 변경
+    course.loc[course['학기'] == '1학기', '학기'] = '1'
+    course.loc[course['학기'] == '여름학기', '학기'] = '2'
+    course.loc[course['학기'] == '2학기', '학기'] = '3'
+    course.loc[course['학기'] == '겨울학기', '학기'] = '4'
 
     # 4. {최초개설년도 - 교과목 정보} 형태로 묶어서 요약
-    course = course.groupby(['전공분야코드', '난이도', '일련번호', '학점', '교과목명'], as_index=False)['년도'].min()
-    course = course.rename(columns={'년도': '최초개설년도'})
-    course = course[['최초개설년도', '전공분야코드', '난이도', '일련번호', '교과목명', '학점']]
+    course = course.groupby(['전공분야코드', '난이도', '일련번호', '학점', '교과목명'], as_index=False)[['년도', '학기']].min()
+    course = course.rename(columns={'년도': '최초개설년도', '학기': '최초개설학기'})
+    course = course[['최초개설년도', '최초개설학기', '전공분야코드', '난이도', '일련번호', '교과목명', '학점']]
 
-    # print(course.sort_values(by=['최초개설년도']))
+    # print(course.sort_values(by=['최초개설년도', '최초개설학기']))
     return course
 
 
