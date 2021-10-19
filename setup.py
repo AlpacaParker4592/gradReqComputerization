@@ -1,5 +1,6 @@
 import pandas as pd  # 데이터프레임 생성용 패키지
 import functions as func  # functions.py 파일의 함수 사용
+import openpyxl
 
 # 1. 필수 파일 존재 여부 확인
 existence_number = func.tf_exist_all_files()
@@ -46,10 +47,17 @@ for row in range(len(df_student)):
 # print(df_course[df_course["수강횟수"] != 0].sort_values(by=['교과목명'], axis=0))
 
 # 4. 수강횟수가 반영된 강좌개설정보를 전공분야코드별로 엑셀에 저장
-# 4-1. 전공분야코드를
+# 4-1. 전공분야코드를 최초개설년도 및 학기 순으로 정렬
 df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
-df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개설학기'])
-print(df_major_code)
-# 4-1. 전공분야코드 중복 제거
-list_major_code = list(set(df_course["전공분야코드"].values.tolist()))
-print(list_major_code)
+df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
+
+# 4-2. 전공분야코드 중복 제거
+list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.tolist()))
+# print(list_major_code)
+
+# 4-3. 전공분야코드 순으로 엑셀 파일(template.xlsx)에 개설강좌정보 입력
+for major in list_major_code:
+    df_major_course = df_course[df_course["전공분야코드"] == major]
+
+    df_major_course = df_major_course.sort_values(by=['최초개설년도', '최초개설학기', '난이도', '일련번호'])
+    print(df_major_course)

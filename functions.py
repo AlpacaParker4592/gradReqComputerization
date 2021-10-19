@@ -17,46 +17,57 @@ def tf_exist_all_files():
     file_list = os.listdir(file_path)
 
     # 학부생 교과목 정보 파일(course_information_undergraduate.xls): 필수
-    # 성적 정보 파일(grade_report.xls): 필수
+    # 대학원생 교과목 정보 파일(course_information_graduate.xls): 필수
     # 교양 과목 정보 파일(elective_course_list.xlsx): 필수
-    # 대학원생 교과목 정보 파일(course_information_graduate.xls): 선택
+    # 성적 정보 파일(grade_report.xls): 필수
     # 현재 수강 교과목 정보 파일(present_course_registration.xls): 선택
 
     tf_exist_file_e1 = "course_information_undergraduate.xls" in file_list  # 학부생 교과목 정보 파일 존재 여부
-    tf_exist_file_e2 = "grade_report.xls" in file_list  # 성적 정보 파일 존재 여부
-    tf_exist_file_e3 = "elective_course_list.xlsx" in file_list
-    tf_exist_file_s1 = "course_information_graduate.xls" in file_list  # 대학원생 교과목 정보 파일 존재 여부
-    tf_exist_file_s2 = "present_course_registration.xls" in file_list  # 현재 수강 교과목 정보 파일
+    tf_exist_file_e2 = "course_information_graduate.xls" in file_list  # 대학원생 교과목 정보 파일 존재 여부
+    tf_exist_file_e3 = "elective_course_list.xlsx" in file_list  # 교양 과목 정보 파일 존재 여부
+    tf_exist_file_e4 = "grade_report.xls" in file_list  # 성적 정보 파일 존재 여부
+    tf_exist_file_s1 = "present_course_registration.xls" in file_list  # 현재 수강 교과목 정보 파일
 
     # 필수 파일 존재 여부 확인
-    if not tf_exist_file_e1:
+    print("학부생 교과목 정보 파일:", end="\t")
+    if tf_exist_file_e1:
+        print("YES")
+    else:
+        print("NO")
         print("학부생 교과목 정보 파일(course_information_undergraduate.xls)이 존재하지 않습니다.")
-        return 4
-    if not tf_exist_file_e2:
-        print("성적 정보 파일(grade_report.xls)이 존재하지 않습니다.")
-        return 4
-    if not tf_exist_file_e3:
+        return 2
+
+    print("대학원생 교과목 정보 파일:", end="\t")
+    if tf_exist_file_e2:
+        print("YES")
+    else:
+        print("NO")
+        print("대학원생 교과목 정보 파일(course_information_graduate.xls)이 존재하지 않습니다.")
+        return 2
+    
+    print("교양 과목 정보 파일:", end="\t\t")
+    if tf_exist_file_e3:
+        print("YES")
+    else:
+        print("NO")
         print("교양 과목 정보 파일(elective_course_list.xlsx)이 존재하지 않습니다.")
-        return 4
+        return 2
+    
+    print("성적 정보 파일:", end="\t\t\t")
+    if tf_exist_file_e4:
+        print("YES")
+    else:
+        print("NO")
+        print("성적 정보 파일(grade_report.xls)이 존재하지 않습니다.")
+        return 2
 
     # 선택 파일 존재 여부 확인
-    print("대학원생 교과목 정보 파일:", end="\t")
+    print("현재 수강 교과목 정보 파일:", end="\t")
     if tf_exist_file_s1:
         print("YES")
     else:
         print("NO")
-    print("현재 수강 교과목 정보 파일:", end="\t")
-    if tf_exist_file_s2:
-        print("YES")
-    else:
-        print("NO")
-
-    if tf_exist_file_s1 and not tf_exist_file_s2:
         return 1
-    if not tf_exist_file_s1 and tf_exist_file_s2:
-        return 2
-    if not tf_exist_file_s1 and not tf_exist_file_s2:
-        return 3
 
     return 0
 
@@ -155,7 +166,7 @@ def summarize_student_information(ex_num):
     # 1-7. 정리한 성적표 데이터를 수강 기등록 과목 데이터에 넣기
     course_registration = previous
 
-    tf_exist_present = ex_num == 0 or ex_num == 2  # 대학원 개설강좌정보 파일 존재 유무
+    tf_exist_present = ex_num == 0  # 현재수강과목 파일 존재 유무
     if tf_exist_present:
         # 2. 현재수강과목 데이터 요약
         present = pd.read_excel("./present_course_registration.xls")
