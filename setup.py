@@ -61,4 +61,3 @@ for major in list_major_code:
 
     df_major_course = df_major_course.sort_values(by=['최초개설년도', '최초개설학기', '난이도', '일련번호'])
     print(df_major_course)
-
