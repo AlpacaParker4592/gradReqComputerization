@@ -34,6 +34,7 @@ for row in range(len(df_student)):
         # [교과목명]이 같은 과목
         df_add_infected1 = df_course[df_course['교과목명'] == df_infected.iloc[inf_row]['교과목명']]
         df_total_infected = pd.concat([df_total_infected, df_add_infected1])
+    # 중복되는 과목을 하나로 제거
     df_total_infected = df_total_infected.drop_duplicates()
 
     # 3-4. "코드쉐어 과목 처리 방법" 중 3번 항목 시행
@@ -42,4 +43,6 @@ for row in range(len(df_student)):
         df_course.loc[df_course.index == i, "수강횟수"] = df_course.loc[df_course.index == i, "수강횟수"] + 1
 
 # 과목 수강 횟수 확인용
-print(df_course[df_course["수강횟수"] != 0].sort_values(by=['교과목명'], axis=0))
+# print(df_course[df_course["수강횟수"] != 0].sort_values(by=['교과목명'], axis=0))
+
+# 4. 수강횟수가 반영된 강좌개설정보를 전공분야코드별로 엑셀에 저장

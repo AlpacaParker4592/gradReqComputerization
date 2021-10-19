@@ -91,7 +91,7 @@ def summarize_course(ex_num):
     # 4. {최초개설년도 - 교과목 정보} 형태로 묶어서 요약
     course = course.groupby(['전공분야코드', '난이도', '일련번호', '학점', '교과목명'], as_index=False)['년도'].min()
     course = course.rename(columns={'년도': '최초개설년도'})
-    course = course[['최초개설년도', '전공분야코드', '난이도', '일련번호', '학점', '교과목명']]
+    course = course[['최초개설년도', '전공분야코드', '난이도', '일련번호', '교과목명', '학점']]
 
     # print(course.sort_values(by=['최초개설년도']))
     return course
