@@ -44,7 +44,7 @@ def tf_exist_all_files():
         print("NO")
         print("대학원생 교과목 정보 파일(course_information_graduate.xls)이 존재하지 않습니다.")
         return 2
-    
+
     print("교양 과목 정보 파일:", end="\t\t")
     if tf_exist_file_e3:
         print("YES")
@@ -52,7 +52,7 @@ def tf_exist_all_files():
         print("NO")
         print("교양 과목 정보 파일(elective_course_list.xlsx)이 존재하지 않습니다.")
         return 2
-    
+
     print("성적 정보 파일:", end="\t\t\t")
     if tf_exist_file_e4:
         print("YES")
@@ -94,7 +94,7 @@ def summarize_course(ex_num):
     course['전공분야코드'] = course['교과목-분반'].str[0:2]
     course['난이도'] = course['교과목-분반'].str[2]
     course['일련번호'] = course['교과목-분반'].str[3:6]
-    course['학점'] = course['강/실/학'].str[-1]
+    course['학점'] = course['강/실/학'].str[-1].astype(int)
 
     # 3. 필요한 컬럼만 수집 및 중복되는 데이터 제거
     course = course[['년도', '학기', '전공분야코드', '난이도', '일련번호', '학점', '교과목명']].drop_duplicates()
@@ -126,7 +126,7 @@ def summarize_student_information(ex_num):
     # 1. 성적표 데이터 요약
     previous = pd.read_excel("./grade_report.xls")
     # 1-1. 학번 추출
-    student_number = previous.iloc[0][0].strip()[-8:]
+    student_number = int(previous.iloc[0][0].strip()[-8:])
 
     # 1-2. 의미없는 열, 행 제거
     previous = previous.drop([previous.columns[0], previous.columns[2]], axis=1)  # 열 제거
@@ -148,7 +148,7 @@ def summarize_student_information(ex_num):
         # 연도 또는 학기가 바뀔 시 갱신
         if previous['과목명'].iloc[row].strip()[0] == "<" and previous['과목명'].iloc[row].strip()[-1] == ">":
             year_semester = previous['과목명'].iloc[row].strip()[1:-1].split("/")
-            year = year_semester[0]  # 출력값: 2019, 2020, 2021 등
+            year = int(year_semester[0])  # 출력값: 2019, 2020, 2021 등
             semester = year_semester[1]  # 출력값: (한글)1학기, 여름학기,... / (영문)Spring Semester,...
         previous['수강연도'].iloc[row] = year
         previous['수강학기'].iloc[row] = semester
@@ -161,6 +161,7 @@ def summarize_student_information(ex_num):
     previous['전공분야코드'] = previous['과목코드'].str[0:2]
     previous['난이도'] = previous['과목코드'].str[2]
     previous['일련번호'] = previous['과목코드'].str[3:6]
+    previous['학점'] = previous['학점'].astype(int)
     previous = previous[['수강연도', '수강학기', '전공분야코드', '난이도', '일련번호', '과목명', '학점', '평점']]
 
     # 1-7. 정리한 성적표 데이터를 수강 기등록 과목 데이터에 넣기
@@ -190,7 +191,7 @@ def summarize_student_information(ex_num):
             present['전공분야코드'] = present['과목코드-분반'].str[0:2]
             present['난이도'] = present['과목코드-분반'].str[2]
             present['일련번호'] = present['과목코드-분반'].str[3:6]
-            present['학점'] = present["강/실/학"].str[-1]
+            present['학점'] = present["강/실/학"].str[-1].astype(int)
             present = present[['전공분야코드', '난이도', '일련번호', '과목명', "학점"]]
         else:
             present['전공분야코드'] = ""
@@ -240,7 +241,8 @@ def summarize_student_information(ex_num):
             # print 명령어로 알리고 삭제 대상 과목을 복원
             if not found_removal_obj:
                 not_found_name = present_retake.iloc[row_num]['과목명']
-                not_found_code = present_retake.iloc[row_num]['전공분야코드'] + present_retake.iloc[row_num]['난이도'] + \
+                not_found_code = present_retake.iloc[row_num]['전공분야코드'] + \
+                                 present_retake.iloc[row_num]['난이도'] + \
                                  present_retake.iloc[row_num]['일련번호']
                 print('ALERT:  드롭 과목 중 과목명이 ' + not_found_name + '(과목 코드: ' + not_found_code + ')인 과목을 제거하지 못했습니다.')
                 for i in range(len(tf_list.tolist())):
@@ -288,7 +290,7 @@ def summarize_elective_course():
     elective_list['전공분야코드'] = elective_list['교과목'].str[0:2]
     elective_list['난이도'] = elective_list['교과목'].str[2]
     elective_list['일련번호'] = elective_list['교과목'].str[3:6]
-    elective_list = elective_list[['전공분야코드', '난이도', '일련번호', '학점', '교과목명']]
+    elective_list = elective_list[['전공분야코드', '난이도', '일련번호', '교과목명', '분류']]  # 학점은 학사편람 기준이므로 제외
 
     # print(elective_list)
     return elective_list
