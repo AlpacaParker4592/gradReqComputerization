@@ -26,6 +26,7 @@ def tf_exist_all_files():
     tf_exist_file_e2 = "course_information_graduate.xls" in file_list  # 대학원생 교과목 정보 파일 존재 여부
     tf_exist_file_e3 = "elective_course_list.xlsx" in file_list  # 교양 과목 정보 파일 존재 여부
     tf_exist_file_e4 = "grade_report.xls" in file_list  # 성적 정보 파일 존재 여부
+    tf_exist_file_e5 = "template.xlsx" in file_list  # 템플릿 파일 존재 여부
     tf_exist_file_s1 = "present_course_registration.xls" in file_list  # 현재 수강 교과목 정보 파일
 
     # 필수 파일 존재 여부 확인
@@ -59,6 +60,14 @@ def tf_exist_all_files():
     else:
         print("NO")
         print("성적 정보 파일(grade_report.xls)이 존재하지 않습니다.")
+        return 2
+
+    print("템플릿 파일:", end="\t\t\t")
+    if tf_exist_file_e5:
+        print("YES")
+    else:
+        print("NO")
+        print("템플릿 파일(template.xls)이 존재하지 않습니다.")
         return 2
 
     # 선택 파일 존재 여부 확인

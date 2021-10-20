@@ -345,8 +345,8 @@ sheet.row_dimensions[5].height = 20
 
 # 열 너비
 sheet.column_dimensions[get_column_letter(1)].width = 1   # 빈 칸
-sheet.column_dimensions[get_column_letter(2)].width = 12  # 수강연도
-sheet.column_dimensions[get_column_letter(3)].width = 12  # 수강학기
+sheet.column_dimensions[get_column_letter(2)].width = 15  # 수강연도
+sheet.column_dimensions[get_column_letter(3)].width = 15  # 수강학기
 sheet.column_dimensions[get_column_letter(4)].width = 12  # 전공분야코드
 sheet.column_dimensions[get_column_letter(5)].width = 9   # 난이도
 sheet.column_dimensions[get_column_letter(6)].width = 9   # 일련번호
