@@ -64,7 +64,7 @@ filename = 'template'
 template = openpyxl.load_workbook("./"+filename+".xlsx")
 sheet = template["개설과목정보"]
 
-# 각 셀의 테두리 스타일
+# 내용 셀의 테두리 스타일
 THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
@@ -82,8 +82,12 @@ for major in list_major_code:
         small_col = start_col
         for value in maj_row:
             sheet.cell(row=small_row, column=small_col).value = value
+            # 각 셀에 테두리 추가
             if small_row != start_row:
                 sheet.cell(row=small_row, column=small_col).border = THIN_BORDER
+            # 수강횟수 셀의 경우 볼드처리
+            if small_col == start_col+len(df_major_course.columns)-1:
+                sheet.cell(row=small_row, column=small_col).font = Font(bold=True)
             small_col += 1
         small_row += 1
     start_col += len(df_major_course.columns) + 1
@@ -91,7 +95,7 @@ for major in list_major_code:
 
 # 4-4. 엑셀 파일에 학번 및 최초개설학기 설명 입력
 sheet.cell(row=2, column=6).value = "최초 개설\n학기 설명"
-sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기\n3: 2학기, 4: 겨울학기"
+sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기, 3: 2학기\n4: 겨울학기, 5: 기타(인정학기 등)"
 
 # 4-5. 서식 및 디자인 설정
 # 선 디자인
@@ -225,8 +229,12 @@ for elect in list_elective_code:
         small_col = start_col
         for value in elect_row:
             sheet.cell(row=small_row, column=small_col).value = value
+            # 각 셀에 테두리 추가
             if small_row != start_row:
                 sheet.cell(row=small_row, column=small_col).border = THIN_BORDER
+            # 수강횟수 셀의 경우 볼드처리
+            if small_col == start_col+len(df_elective_course.columns)-1:
+                sheet.cell(row=small_row, column=small_col).font = Font(bold=True)
             small_col += 1
         small_row += 1
     start_col += len(df_elective_course.columns) + 1
@@ -234,7 +242,7 @@ for elect in list_elective_code:
 
 # 5-3. 엑셀 파일에 학번 및 최초개설학기 설명 입력
 sheet.cell(row=2, column=6).value = "최초 개설\n학기 설명"
-sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기\n3: 2학기, 4: 겨울학기"
+sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기, 3: 2학기\n4: 겨울학기, 5: 기타(인정학기 등)"
 
 # 5-4. 서식 및 디자인 설정
 # 셀 색상
@@ -366,7 +374,7 @@ sheet.cell(row=2, column=2).fill = LIGHT
 sheet.cell(row=2, column=2).font = Font(bold=True)
 # 글자 서식 반영
 sheet.cell(row=2, column=2).alignment = Alignment(horizontal='center', vertical='center')
-sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical='center')
+sheet.cell(row=2, column=3).alignment = Alignment(horizontal='right', vertical='center')
 
 # 6-3-3. 강좌개설정보 부분 디자인
 # 셀 병합
@@ -384,4 +392,5 @@ for i in range(2, 10):
 sheet.cell(row=4, column=2).value = "총 수강 과목"
 
 # 7. 입력한 정보를 저장
-template.save(filename="computation_result_kor.xlsx")
+# template.save(filename="computation_result_kor.xlsx")
+template.save(filename=filename+"_test.xlsx")
