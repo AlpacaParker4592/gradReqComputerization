@@ -160,7 +160,7 @@ for column in range(len(list_major_code)):
     for i in range(2, 10):
         sheet.cell(row=5, column=9 * column + i).fill = DARK
         sheet.cell(row=5, column=9 * column + i).alignment = Alignment(horizontal='center', vertical='center')
-        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='ffffff')
+        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='FFFFFF')
 
 # 4-6. 각 전공분야코드별 설명 추가
 # 전공분야코드별 설명
@@ -304,7 +304,7 @@ for column in range(len(list_elective_code)):
     for i in range(2, 10):
         sheet.cell(row=5, column=9 * column + i).fill = DARK
         sheet.cell(row=5, column=9 * column + i).alignment = Alignment(horizontal='center', vertical='center')
-        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='ffffff')
+        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='FFFFFF')
 
 # 5-5. 각 전공분야코드별 설명 추가
 # 전공분야코드별 설명
@@ -386,7 +386,7 @@ sheet.cell(row=4, column=2).font = Font(bold=True)
 for i in range(2, 10):
     sheet.cell(row=5, column=i).fill = DARK
     sheet.cell(row=5, column=i).alignment = Alignment(horizontal='center', vertical='center')
-    sheet.cell(row=5, column=i).font = Font(bold=True, color='ffffff')
+    sheet.cell(row=5, column=i).font = Font(bold=True, color='FFFFFF')
 
 # 6-4. 엑셀 파일에 설명 추가
 sheet.cell(row=4, column=2).value = "총 수강 과목"
