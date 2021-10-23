@@ -101,12 +101,12 @@ def summarize_course(ex_num):
     course = course[['년도', '학기', '교과목-분반', '교과목명', '강/실/학']].copy()
 
     course['전공분야코드'] = course['교과목-분반'].str[0:2]
-    course['난이도'] = course['교과목-분반'].str[2]
-    course['일련번호'] = course['교과목-분반'].str[3:6]
+    course['일련번호'] = course['교과목-분반'].str[2:6]
     course['학점'] = course['강/실/학'].str[-1].astype(int)
+    course["교과목명"] = course["교과목명"].str.strip()
 
     # 3. 필요한 컬럼만 수집 및 중복되는 데이터 제거
-    course = course[['년도', '학기', '전공분야코드', '난이도', '일련번호', '학점', '교과목명']].drop_duplicates()
+    course = course[['년도', '학기', '전공분야코드', '일련번호', '학점', '교과목명']].drop_duplicates()
 
     # 3+. 학기 명칭 변경
     course.loc[course['학기'] == '1학기', '학기'] = '1'
@@ -116,9 +116,9 @@ def summarize_course(ex_num):
     course.loc[course['학기'].str.len() != 1, '학기'] = '5'  # 4개 학기에 포함되지 않는 학기(ex. 인정학기 등)는 5로 처리
 
     # 4. {최초개설년도 - 교과목 정보} 형태로 묶어서 요약
-    course = course.groupby(['전공분야코드', '난이도', '일련번호', '학점', '교과목명'], as_index=False)[['년도', '학기']].min()
+    course = course.groupby(['전공분야코드', '일련번호', '학점', '교과목명'], as_index=False)[['년도', '학기']].min()
     course = course.rename(columns={'년도': '최초개설년도', '학기': '최초개설학기'})
-    course = course[['최초개설년도', '최초개설학기', '전공분야코드', '난이도', '일련번호', '교과목명', '학점']]
+    course = course[['전공분야코드', '일련번호', '교과목명', '최초개설년도', '최초개설학기', '학점']]
 
     # print(course.sort_values(by=['최초개설년도', '최초개설학기']))
     return course
@@ -169,10 +169,10 @@ def summarize_student_information(ex_num):
 
     # 1-6. 컬럼 내 데이터 추출 및 정리
     previous['전공분야코드'] = previous['과목코드'].str[0:2]
-    previous['난이도'] = previous['과목코드'].str[2]
-    previous['일련번호'] = previous['과목코드'].str[3:6]
+    previous['일련번호'] = previous['과목코드'].str[2:6]
     previous['학점'] = previous['학점'].astype(int)
-    previous = previous[['수강연도', '수강학기', '전공분야코드', '난이도', '일련번호', '과목명', '학점', '평점']]
+    previous["과목명"] = previous["과목명"].str.strip()
+    previous = previous[['수강연도', '수강학기', '전공분야코드', '일련번호', '과목명', '학점', '평점']]
 
     # 1-7. 정리한 성적표 데이터를 수강 기등록 과목 데이터에 넣기
     course_registration = previous
@@ -199,29 +199,26 @@ def summarize_student_information(ex_num):
         # 2-3. 컬럼 내 데이터 추출 및 정리
         if len(present) > 0:
             present['전공분야코드'] = present['과목코드-분반'].str[0:2]
-            present['난이도'] = present['과목코드-분반'].str[2]
-            present['일련번호'] = present['과목코드-분반'].str[3:6]
+            present['일련번호'] = present['과목코드-분반'].str[2:6]
             present['학점'] = present["강/실/학"].str[-1].astype(int)
-            present = present[['전공분야코드', '난이도', '일련번호', '과목명', "학점"]]
+            present["과목명"] = present["과목명"].str.strip()
+            present = present[['전공분야코드', '일련번호', '과목명', "학점"]]
         else:
             present['전공분야코드'] = ""
-            present['난이도'] = ""
             present['일련번호'] = ""
             present['과목명'] = ""
             present['학점'] = ""
-            present = present[['전공분야코드', '난이도', '일련번호', '과목명', "학점"]]
+            present = present[['전공분야코드', '일련번호', '과목명', "학점"]]
 
         if len(present_retake) > 0:
             present_retake['전공분야코드'] = present_retake['과목코드'].str[0:2]
-            present_retake['난이도'] = present_retake['과목코드'].str[2]
-            present_retake['일련번호'] = present_retake['과목코드'].str[3:6]
-            present_retake = present_retake[['전공분야코드', '난이도', '일련번호', '과목명']]
+            present_retake['일련번호'] = present_retake['과목코드'].str[2:6]
+            present_retake = present_retake[['전공분야코드', '일련번호', '과목명']]
         else:
             present_retake['전공분야코드'] = ""
-            present_retake['난이도'] = ""
             present_retake['일련번호'] = ""
             present_retake['과목명'] = ""
-            present_retake = present_retake[['전공분야코드', '난이도', '일련번호', '과목명']]
+            present_retake = present_retake[['전공분야코드', '일련번호', '과목명']]
 
         # 3. 성적표 데이터(previous)와 현재 수강 과목(present) 통합
         if len(present) > 0:
@@ -230,12 +227,11 @@ def summarize_student_information(ex_num):
         # 4. 현재 재수강하는 과목 데이터 제거(과목코드 기반)
         for row_num in range(len(present_retake)):
             is_same_major_code = course_registration['전공분야코드'] == present_retake.iloc[row_num]['전공분야코드']
-            is_same_difficulty = course_registration['난이도'] == present_retake.iloc[row_num]['난이도']
             is_same_num_code = course_registration['일련번호'] == present_retake.iloc[row_num]['일련번호']
 
             # 재수강하는 과목이 여러 번 이수한 과목(예체능, 콜로퀴움 등)일 경우
             # 재수강 과목 중 처음 C0 이하 또는 U로 이수한 과목 하나를 삭제하도록 조정
-            tf_list = ~(is_same_major_code & is_same_difficulty & is_same_num_code)
+            tf_list = ~(is_same_major_code & is_same_num_code)
             found_removal_obj = False  # 삭제 대상 발견 tf값(발견 전: false, 발견 후: true)
             for tf_num in range(len(tf_list.tolist())):
                 # 제거 대상 과목 발견 이후의 모든 과목을 그대로 보존
@@ -251,9 +247,7 @@ def summarize_student_information(ex_num):
             # print 명령어로 알리고 삭제 대상 과목을 복원
             if not found_removal_obj:
                 not_found_name = present_retake.iloc[row_num]['과목명']
-                not_found_code = present_retake.iloc[row_num]['전공분야코드'] + \
-                                 present_retake.iloc[row_num]['난이도'] + \
-                                 present_retake.iloc[row_num]['일련번호']
+                not_found_code = present_retake.iloc[row_num]['전공분야코드'] + present_retake.iloc[row_num]['일련번호']
                 print('ALERT:  드롭 과목 중 과목명이 ' + not_found_name + '(과목 코드: ' + not_found_code + ')인 과목을 제거하지 못했습니다.')
                 for i in range(len(tf_list.tolist())):
                     tf_list[i] = True
@@ -298,9 +292,8 @@ def summarize_elective_course():
     # 3. 모든 분류 통합
     elective_list = pd.concat([hus_list, ppe_list, gsc_list], ignore_index=True)
     elective_list['전공분야코드'] = elective_list['교과목'].str[0:2]
-    elective_list['난이도'] = elective_list['교과목'].str[2]
-    elective_list['일련번호'] = elective_list['교과목'].str[3:6]
-    elective_list = elective_list[['전공분야코드', '난이도', '일련번호', '교과목명', '분류']]  # 학점은 학사편람 기준이므로 제외
+    elective_list['일련번호'] = elective_list['교과목'].str[2:6]
+    elective_list = elective_list[['전공분야코드', '일련번호', '교과목명', '분류']]  # 학점은 학사편람 기준이므로 제외
 
     # print(elective_list)
     return elective_list

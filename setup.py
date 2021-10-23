@@ -18,19 +18,22 @@ df_elective = func.summarize_elective_course()
 # 3. 강좌개설정보에 수강한 강좌 반영
 """
 코드쉐어 과목 처리 방법
-1. 강좌개설정보(df_course)에서 학생 수강 과목(df_student) 중 하나와 과목코드[전공분야코드, 난이도, 일련번호]가 일치하는 과목을 추출함.
+1. 강좌개설정보(df_course)에서 학생 수강 과목(df_student) 중 하나와 과목코드[전공분야코드, 일련번호]가 일치하는 과목을 추출함.
 2. 강좌개설정보에서 다음 조건을 만족하는 과목을 추가로 추출함.
     2-1. 1에서 추출한 과목과 [교과목명]이 같은 과목(자신 포함).
 3. 2에서 만족하는 과목은 수강 횟수에 1을 더함.
 """
 # 3-1. 강좌개설정보 변수(df_course)에 수강 횟수 정보 추가
 df_course['수강횟수'] = 0
+# 평점이 U 또는 F인 과목은 제외
+df_student_not_u = df_student["평점"] != "U"
+df_student_not_f = df_student["평점"] != "F"
+df_student2 = df_student[df_student_not_u & df_student_not_f]
 
 for row in range(len(df_student)):
     # 3-2. "코드쉐어 과목 처리 방법" 중 1번 항목 시행
-    df_infected = df_course[df_course['전공분야코드'] == df_student.iloc[row]['전공분야코드']]
-    df_infected = df_infected[df_infected['난이도'] == df_student.iloc[row]['난이도']]
-    df_infected = df_infected[df_infected['일련번호'] == df_student.iloc[row]['일련번호']]
+    df_infected = df_course[df_course['전공분야코드'] == df_student2.iloc[row]['전공분야코드']]
+    df_infected = df_infected[df_infected['일련번호'] == df_student2.iloc[row]['일련번호']]
 
     # 3-3. "코드쉐어 과목 처리 방법" 중 2번 항목 시행
     df_total_infected = pd.DataFrame()
@@ -70,11 +73,13 @@ THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
 start_row = 5
 start_col = 2
+# 열 개수
+num_course_columns = len(df_course.columns)  # 컬럼 개수(표 디자인용)
 
 for major in list_major_code:
     df_major_course = df_course[df_course["전공분야코드"] == major]  # 전공분야코드에 따라 선별한 개설강좌정보
     # 추후 개설강좌정보 업데이트 시 셀 순서가 뒤바뀌지 않도록 다음 조건에 따라 정렬
-    df_major_course = df_major_course.sort_values(by=['최초개설년도', '최초개설학기', '난이도', '일련번호'])
+    df_major_course = df_major_course.sort_values(by=['일련번호', '최초개설년도', '최초개설학기'])
     
     # 정보를 각 셀에 입력
     small_row = start_row
@@ -116,17 +121,16 @@ sheet.row_dimensions[5].height = 20
 # 열 너비
 for column in range(len(list_major_code)):
     if column == 0:
-        sheet.column_dimensions[get_column_letter(9 * column + 1)].width = 1   # 빈 칸
+        sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 1)].width = 1   # 빈 칸
     else:
-        sheet.column_dimensions[get_column_letter(9 * column + 1)].width = 3  # 빈 칸
-    sheet.column_dimensions[get_column_letter(9 * column + 2)].width = 15  # 최초개설년도
-    sheet.column_dimensions[get_column_letter(9 * column + 3)].width = 15  # 최초개설학기
-    sheet.column_dimensions[get_column_letter(9 * column + 4)].width = 12  # 전공분야코드
-    sheet.column_dimensions[get_column_letter(9 * column + 5)].width = 9   # 난이도
-    sheet.column_dimensions[get_column_letter(9 * column + 6)].width = 9   # 일련번호
-    sheet.column_dimensions[get_column_letter(9 * column + 7)].width = 35  # 교과목명
-    sheet.column_dimensions[get_column_letter(9 * column + 8)].width = 9   # 학점
-    sheet.column_dimensions[get_column_letter(9 * column + 9)].width = 9   # 수강횟수
+        sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 1)].width = 3  # 빈 칸
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 2)].width = 12  # 전공분야코드
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 3)].width = 9   # 일련번호
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 4)].width = 35  # 교과목명
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 5)].width = 15  # 최초개설년도
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 6)].width = 15  # 최초개설학기
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 7)].width = 9   # 학점
+    sheet.column_dimensions[get_column_letter((num_course_columns+1) * column + 8)].width = 9   # 수강횟수
 
 # 틀 고정
 sheet.freeze_panes = "A6"
@@ -152,15 +156,18 @@ sheet.cell(row=2, column=7).alignment = Alignment(horizontal='center', vertical=
 # 4-5-3. 강좌개설정보 부분 디자인
 for column in range(len(list_major_code)):
     # 셀 병합
-    sheet.merge_cells(start_row=4, start_column=9 * column + 2, end_row=4,  end_column=9 * column + 9)
+    sheet.merge_cells(start_row=4, start_column=(num_course_columns+1) * column + 2,
+                      end_row=4, end_column=(num_course_columns+1) * column + (num_course_columns+1))
     # 색상 설정 및 글자 서식 반영
-    sheet.cell(row=4, column=9 * column + 2).fill = LIGHT
-    sheet.cell(row=4, column=9 * column + 2).alignment = Alignment(horizontal='center', vertical='center')
-    sheet.cell(row=4, column=9 * column + 2).font = Font(bold=True)
-    for i in range(2, 10):
-        sheet.cell(row=5, column=9 * column + i).fill = DARK
-        sheet.cell(row=5, column=9 * column + i).alignment = Alignment(horizontal='center', vertical='center')
-        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='FFFFFF')
+    sheet.cell(row=4, column=(num_course_columns+1) * column + 2).fill = LIGHT
+    sheet.cell(row=4, column=(num_course_columns+1) * column + 2).alignment = Alignment(horizontal='center',
+                                                                                        vertical='center')
+    sheet.cell(row=4, column=(num_course_columns+1) * column + 2).font = Font(bold=True)
+    for i in range(2, (num_course_columns+1) + 1):
+        sheet.cell(row=5, column=(num_course_columns+1) * column + i).fill = DARK
+        sheet.cell(row=5, column=(num_course_columns+1) * column + i).alignment = Alignment(horizontal='center',
+                                                                                            vertical='center')
+        sheet.cell(row=5, column=(num_course_columns+1) * column + i).font = Font(bold=True, color='FFFFFF')
 
 # 4-6. 각 전공분야코드별 설명 추가
 # 전공분야코드별 설명
@@ -201,14 +208,20 @@ df_major_explain = df_major_explain.drop_duplicates("전공분야코드")
 
 # 엑셀 파일에 설명 추가
 for column in range(len(list_major_code)):
-    sheet.cell(row=4, column=9 * column + 2).value = \
+    sheet.cell(row=4, column=(num_course_columns+1) * column + 2).value = \
         df_major_explain.loc[df_major_explain["전공분야코드"] == list_major_code[column], "설명"].values[0]
 
 # 5. 교양 과목에 수강횟수를 반영하여 엑셀에 저장
-sheet = template["교양과목정보"]
+sheet = template["교양과목-예체능"]
 
 # 5-1. df_course 변수와 합쳐 교양 과목 변수(df_course)에 수강 횟수 정보 추가
-df_elective = pd.merge(df_elective, df_course, how='inner', on=["전공분야코드", "난이도", "일련번호", "교과목명"])
+df_elective = pd.merge(df_elective, df_course, how='inner', on=["전공분야코드", "일련번호", "교과목명"])
+# 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
+df_elective = df_elective.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+# 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
+df_elective = df_elective[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수", "분류"]]
+# 열 개수
+num_elective_columns = len(df_elective.columns)-1  # 분류 컬럼명을 제외한컬럼 개수
 
 # 5-2. 분류별로 엑셀 시트에 기입
 # 입력 시 최좌상단 셀 위치
@@ -218,10 +231,10 @@ start_col = 2
 list_elective_code = list(dict.fromkeys(df_elective["분류"].values.tolist()))
 for elect in list_elective_code:
     df_elective_course = df_elective[df_elective["분류"] == elect].drop(["분류"], axis=1)  # 교양과목 분류에 따라 선별한 개설강좌정보
-    # 추후 개설강좌정보 업데이트 시 셀 순서가 뒤바뀌지 않도록 다음 조건에 따라 정렬
-    df_elective_course = df_elective_course.sort_values(by=['최초개설년도', '최초개설학기', '난이도', '일련번호'])
-    # 컬럼명 재배열
-    df_elective_course = df_elective_course[["최초개설년도", "최초개설학기", "전공분야코드", "난이도", "일련번호", "교과목명", "학점", "수강횟수"]]
+    # 다음 조건에 따라 정렬
+    df_elective_course = df_elective_course.sort_values(by='일련번호')
+    # 컬럼명 재배열(분류 삭제)
+    df_elective_course = df_elective_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 
     # 정보를 각 셀에 입력
     small_row = start_row
@@ -233,16 +246,12 @@ for elect in list_elective_code:
             if small_row != start_row:
                 sheet.cell(row=small_row, column=small_col).border = THIN_BORDER
             # 수강횟수 셀의 경우 볼드처리
-            if small_col == start_col+len(df_elective_course.columns)-1:
+            if small_col == start_col+num_elective_columns-1:
                 sheet.cell(row=small_row, column=small_col).font = Font(bold=True)
             small_col += 1
         small_row += 1
-    start_col += len(df_elective_course.columns) + 1
+    start_col += num_elective_columns + 1
     # print(df_elective_course)
-
-# 5-3. 엑셀 파일에 학번 및 최초개설학기 설명 입력
-sheet.cell(row=2, column=6).value = "최초 개설\n학기 설명"
-sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기, 3: 2학기\n4: 겨울학기, 5: 기타(인정학기 등)"
 
 # 5-4. 서식 및 디자인 설정
 # 셀 색상
@@ -258,53 +267,35 @@ sheet.row_dimensions[4].height = 20
 sheet.row_dimensions[5].height = 20
 
 # 열 너비
-for column in range(len(list_major_code)):
+for column in range(len(list_elective_code)):
     if column == 0:
-        sheet.column_dimensions[get_column_letter(9 * column + 1)].width = 1   # 빈 칸
+        sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 1)].width = 1   # 빈 칸
     else:
-        sheet.column_dimensions[get_column_letter(9 * column + 1)].width = 3  # 빈 칸
-    sheet.column_dimensions[get_column_letter(9 * column + 2)].width = 15  # 최초개설년도
-    sheet.column_dimensions[get_column_letter(9 * column + 3)].width = 15  # 최초개설학기
-    sheet.column_dimensions[get_column_letter(9 * column + 4)].width = 12  # 전공분야코드
-    sheet.column_dimensions[get_column_letter(9 * column + 5)].width = 9   # 난이도
-    sheet.column_dimensions[get_column_letter(9 * column + 6)].width = 9   # 일련번호
-    sheet.column_dimensions[get_column_letter(9 * column + 7)].width = 35  # 교과목명
-    sheet.column_dimensions[get_column_letter(9 * column + 8)].width = 9   # 학점
-    sheet.column_dimensions[get_column_letter(9 * column + 9)].width = 9   # 수강횟수
+        sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 1)].width = 3  # 빈 칸
+    sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 2)].width = 12  # 전공분야코드
+    sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 3)].width = 9   # 일련번호
+    sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 4)].width = 35  # 교과목명
+    sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 5)].width = 9   # 학점
+    sheet.column_dimensions[get_column_letter((num_elective_columns+1) * column + 6)].width = 9   # 수강횟수
 
 # 틀 고정
 sheet.freeze_panes = "A6"
 
-
-# 5-4-2. 학번 부분[B2:C2] 및 최초개설학기 설명[F2:G2] 디자인
-# 선 디자인 반영
-sheet.cell(row=2, column=2).border = LEFT_BORDER
-sheet.cell(row=2, column=3).border = RIGHT_BORDER
-sheet.cell(row=2, column=6).border = LEFT_BORDER
-sheet.cell(row=2, column=7).border = RIGHT_BORDER
-# 셀 색상 및 글꼴 굵기 반영(왼쪽 부분)
-sheet.cell(row=2, column=2).fill = LIGHT
-sheet.cell(row=2, column=2).font = Font(bold=True)
-sheet.cell(row=2, column=6).fill = LIGHT
-sheet.cell(row=2, column=6).font = Font(bold=True)
-# 글자 서식 반영
-sheet.cell(row=2, column=2).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=6).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=7).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-# 5-4-3. 강좌개설정보 부분 디자인
+# 5-4-2. 강좌개설정보 부분 디자인
 for column in range(len(list_elective_code)):
     # 셀 병합
-    sheet.merge_cells(start_row=4, start_column=9 * column + 2, end_row=4,  end_column=9 * column + 9)
+    sheet.merge_cells(start_row=4, start_column=(num_elective_columns+1) * column + 2, end_row=4,
+                      end_column=(num_elective_columns+1) * column + (num_elective_columns+1))
     # 색상 설정 및 글자 서식 반영
-    sheet.cell(row=4, column=9 * column + 2).fill = LIGHT
-    sheet.cell(row=4, column=9 * column + 2).alignment = Alignment(horizontal='center', vertical='center')
-    sheet.cell(row=4, column=9 * column + 2).font = Font(bold=True)
-    for i in range(2, 10):
-        sheet.cell(row=5, column=9 * column + i).fill = DARK
-        sheet.cell(row=5, column=9 * column + i).alignment = Alignment(horizontal='center', vertical='center')
-        sheet.cell(row=5, column=9 * column + i).font = Font(bold=True, color='FFFFFF')
+    sheet.cell(row=4, column=(num_elective_columns+1) * column + 2).fill = LIGHT
+    sheet.cell(row=4, column=(num_elective_columns+1) * column + 2).alignment = Alignment(horizontal='center',
+                                                                                          vertical='center')
+    sheet.cell(row=4, column=(num_elective_columns+1) * column + 2).font = Font(bold=True)
+    for i in range(2, (num_elective_columns+1)+1):
+        sheet.cell(row=5, column=(num_elective_columns+1) * column + i).fill = DARK
+        sheet.cell(row=5, column=(num_elective_columns+1) * column + i).alignment = Alignment(horizontal='center',
+                                                                                              vertical='center')
+        sheet.cell(row=5, column=(num_elective_columns+1) * column + i).font = Font(bold=True, color='FFFFFF')
 
 # 5-5. 각 전공분야코드별 설명 추가
 # 전공분야코드별 설명
@@ -312,8 +303,61 @@ df_elective_explain = pd.DataFrame({"분류": ["hus", "ppe", "gsc"],
                                     "설명": ["HUS : 문사철", "PPE : 철사과", "GSC : 일반선택"]})
 # 엑셀 파일에 설명 추가
 for column in range(len(list_elective_code)):
-    sheet.cell(row=4, column=9 * column + 2).value = \
+    sheet.cell(row=4, column=(num_elective_columns+1) * column + 2).value = \
         df_elective_explain.loc[df_elective_explain["분류"] == list_elective_code[column], "설명"].values[0]
+
+# 5+. 예체능 과목을 엑셀에 추가
+# 5+-1. 예체능 과목 데이터프레임 설정
+df_physical_art = df_course[df_course["전공분야코드"] == "GS"]
+df_physical_art = df_physical_art[df_physical_art["일련번호"].str.startswith("01") |
+                                  df_physical_art["일련번호"].str.startswith("02")]
+# 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
+df_physical_art = df_physical_art[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+# 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
+df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+# 데이터프레임 정렬
+df_physical_art = df_physical_art.sort_values(by=["전공분야코드", "일련번호"], axis=0)
+# 열 개수
+num_pa_columns = len(df_physical_art.columns)  # 컬럼 개수
+
+# 5+-2. 엑셀에 데이터 입력
+small_row = start_row
+for elect_row in dataframe_to_rows(df_physical_art, index=False, header=True):
+    small_col = start_col
+    for value in elect_row:
+        sheet.cell(row=small_row, column=small_col).value = value
+        # 각 셀에 테두리 추가
+        if small_row != start_row:
+            sheet.cell(row=small_row, column=small_col).border = THIN_BORDER
+        # 수강횟수 셀의 경우 볼드처리
+        if small_col == start_col+num_elective_columns-1:
+            sheet.cell(row=small_row, column=small_col).font = Font(bold=True)
+        small_col += 1
+    small_row += 1
+
+# 5+-3. 서식 및 디자인 설정
+# 5+-3-1. 열 너비 조정
+sheet.column_dimensions[get_column_letter(start_col - 1)].width = 3  # 빈칸(정상화 후 삭제 예정)
+sheet.column_dimensions[get_column_letter(start_col)].width = 12  # 전공분야코드
+sheet.column_dimensions[get_column_letter(start_col + 1)].width = 9   # 일련번호
+sheet.column_dimensions[get_column_letter(start_col + 2)].width = 35  # 교과목명
+sheet.column_dimensions[get_column_letter(start_col + 3)].width = 9   # 학점
+sheet.column_dimensions[get_column_letter(start_col + 4)].width = 9   # 수강횟수
+
+# 5+-3-2. 강좌개설정보 부분 디자인
+# 셀 병합
+sheet.merge_cells(start_row=4, start_column=start_col, end_row=4, end_column=start_col+num_pa_columns-1)
+# 색상 설정 및 글자 서식 반영
+sheet.cell(row=4, column=start_col).fill = LIGHT
+sheet.cell(row=4, column=start_col).alignment = Alignment(horizontal='center', vertical='center')
+sheet.cell(row=4, column=start_col).font = Font(bold=True)
+for i in range(0, num_pa_columns):
+    sheet.cell(row=5, column=start_col + i).fill = DARK
+    sheet.cell(row=5, column=start_col + i).alignment = Alignment(horizontal='center', vertical='center')
+    sheet.cell(row=5, column=start_col + i).font = Font(bold=True, color='FFFFFF')
+
+# 5+-4. 예체능 설명 추가
+sheet.cell(row=4, column=start_col).value = "예체능 과목"
 
 # 6. 성적 관련 정보를 엑셀에 저장
 sheet = template["수강과목요약"]
@@ -345,9 +389,9 @@ DARK = PatternFill(start_color="C65911", end_color="C65911", fill_type='solid')
 
 # 6-3-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
-sheet.row_dimensions[1].height = 8
-sheet.row_dimensions[2].height = 40
-sheet.row_dimensions[3].height = 8
+sheet.row_dimensions[1].height = 13
+sheet.row_dimensions[2].height = 30
+sheet.row_dimensions[3].height = 13
 sheet.row_dimensions[4].height = 20
 sheet.row_dimensions[5].height = 20
 
@@ -356,11 +400,10 @@ sheet.column_dimensions[get_column_letter(1)].width = 1   # 빈 칸
 sheet.column_dimensions[get_column_letter(2)].width = 15  # 수강연도
 sheet.column_dimensions[get_column_letter(3)].width = 15  # 수강학기
 sheet.column_dimensions[get_column_letter(4)].width = 12  # 전공분야코드
-sheet.column_dimensions[get_column_letter(5)].width = 9   # 난이도
-sheet.column_dimensions[get_column_letter(6)].width = 9   # 일련번호
-sheet.column_dimensions[get_column_letter(7)].width = 45  # 과목명
-sheet.column_dimensions[get_column_letter(8)].width = 9   # 학점
-sheet.column_dimensions[get_column_letter(9)].width = 9   # 수강횟수
+sheet.column_dimensions[get_column_letter(5)].width = 9   # 일련번호
+sheet.column_dimensions[get_column_letter(6)].width = 45  # 과목명
+sheet.column_dimensions[get_column_letter(7)].width = 9   # 학점
+sheet.column_dimensions[get_column_letter(8)].width = 9   # 수강횟수
 
 # 틀 고정
 sheet.freeze_panes = "A6"
@@ -374,7 +417,7 @@ sheet.cell(row=2, column=2).fill = LIGHT
 sheet.cell(row=2, column=2).font = Font(bold=True)
 # 글자 서식 반영
 sheet.cell(row=2, column=2).alignment = Alignment(horizontal='center', vertical='center')
-sheet.cell(row=2, column=3).alignment = Alignment(horizontal='right', vertical='center')
+sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical='center')
 
 # 6-3-3. 강좌개설정보 부분 디자인
 # 셀 병합
