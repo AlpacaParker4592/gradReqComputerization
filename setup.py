@@ -98,9 +98,6 @@ for major in list_major_code:
     start_col += len(df_major_course.columns) + 1
     # print(df_major_course)
 
-# 4-4. 엑셀 파일에 학번 및 최초개설학기 설명 입력
-sheet.cell(row=2, column=6).value = "최초 개설\n학기 설명"
-sheet.cell(row=2, column=7).value = "1: 1학기, 2: 여름학기, 3: 2학기\n4: 겨울학기, 5: 기타(인정학기 등)"
 
 # 4-5. 서식 및 디자인 설정
 # 선 디자인
@@ -134,24 +131,6 @@ for column in range(len(list_major_code)):
 
 # 틀 고정
 sheet.freeze_panes = "A6"
-
-
-# 4-5-2. 학번 부분[B2:C2] 및 최초개설학기 설명[F2:G2] 디자인
-# 선 디자인 반영
-sheet.cell(row=2, column=2).border = LEFT_BORDER
-sheet.cell(row=2, column=3).border = RIGHT_BORDER
-sheet.cell(row=2, column=6).border = LEFT_BORDER
-sheet.cell(row=2, column=7).border = RIGHT_BORDER
-# 셀 색상 및 글꼴 굵기 반영(왼쪽 부분)
-sheet.cell(row=2, column=2).fill = LIGHT
-sheet.cell(row=2, column=2).font = Font(bold=True)
-sheet.cell(row=2, column=6).fill = LIGHT
-sheet.cell(row=2, column=6).font = Font(bold=True)
-# 글자 서식 반영
-sheet.cell(row=2, column=2).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=6).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-sheet.cell(row=2, column=7).alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
 # 4-5-3. 강좌개설정보 부분 디자인
 for column in range(len(list_major_code)):
@@ -421,12 +400,12 @@ sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical=
 
 # 6-3-3. 강좌개설정보 부분 디자인
 # 셀 병합
-sheet.merge_cells(start_row=4, start_column=2, end_row=4,  end_column=9)
+sheet.merge_cells(start_row=4, start_column=2, end_row=4,  end_column=8)
 # 색상 설정 및 글자 서식 반영
 sheet.cell(row=4, column=2).fill = LIGHT
 sheet.cell(row=4, column=2).alignment = Alignment(horizontal='center', vertical='center')
 sheet.cell(row=4, column=2).font = Font(bold=True)
-for i in range(2, 10):
+for i in range(2, 9):
     sheet.cell(row=5, column=i).fill = DARK
     sheet.cell(row=5, column=i).alignment = Alignment(horizontal='center', vertical='center')
     sheet.cell(row=5, column=i).font = Font(bold=True, color='FFFFFF')

@@ -108,13 +108,6 @@ def summarize_course(ex_num):
     # 3. 필요한 컬럼만 수집 및 중복되는 데이터 제거
     course = course[['년도', '학기', '전공분야코드', '일련번호', '학점', '교과목명']].drop_duplicates()
 
-    # 3+. 학기 명칭 변경
-    course.loc[course['학기'] == '1학기', '학기'] = '1'
-    course.loc[course['학기'] == '여름학기', '학기'] = '2'
-    course.loc[course['학기'] == '2학기', '학기'] = '3'
-    course.loc[course['학기'] == '겨울학기', '학기'] = '4'
-    course.loc[course['학기'].str.len() != 1, '학기'] = '5'  # 4개 학기에 포함되지 않는 학기(ex. 인정학기 등)는 5로 처리
-
     # 4. {최초개설년도 - 교과목 정보} 형태로 묶어서 요약
     course = course.groupby(['전공분야코드', '일련번호', '학점', '교과목명'], as_index=False)[['년도', '학기']].min()
     course = course.rename(columns={'년도': '최초개설년도', '학기': '최초개설학기'})
