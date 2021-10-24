@@ -3,7 +3,10 @@
 """
 import pandas as pd  # 데이터프레임 생성용 패키지
 import os
-
+import openpyxl
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
+from openpyxl.utils import get_column_letter
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 def tf_exist_all_files():
     """
@@ -290,3 +293,98 @@ def summarize_elective_course():
 
     # print(elective_list)
     return elective_list
+
+
+def excel_config(file_path,  # 파일 경로
+                 sheet_name,  # 시트명
+                 input_dataframe,  # 엑셀 파일에 투입할 데이터프레임
+                 parameter_list,  # 표를 구분하기 위한 리스트
+                 parameter,  # 데이터프레임을 분류할 수 있는 컬럼명(ex. "전공분야코드")
+                 col_width,  # 표 내 각 컬럼 길이
+                 explain_dataframe,  # 헤더 부분에 넣을 설명 데이터프레임
+                 show_parameter=True,  # 분류 컬럼명 보기값(True 값이면 보여줌)
+                 light_color="F2F2F2",  # 헤더 셀에 설정할 밝은 색
+                 dark_color="595959"  # 헤더 셀에 설정할 어두운 색
+                 ):
+    template = openpyxl.load_workbook(file_path)
+    sheet = template[sheet_name]
+    # 입력 시 데이터 내용 최좌상단 셀 위치
+    start_row = 5
+    start_col = 2
+    # 열 개수
+    num_input_columns = len(input_dataframe.columns)  # 컬럼 개수(표 디자인용)
+    # 내용 셀의 테두리 스타일
+    THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
+    # 부가 정보 부분(학번 등) 선 디자인
+    LEFT_BORDER = Border(Side('thick'), Side('thin'), Side('thick'), Side('thick'))  # 좌우상하 순서
+    RIGHT_BORDER = Border(Side('thin'), Side('thick'), Side('thick'), Side('thick'))
+    # 부가 정보 부분(학번 등) 셀 색상
+    LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
+    DARK = PatternFill(start_color=dark_color, end_color=dark_color, fill_type='solid')
+
+    for para in parameter_list:
+        # para 값에 따라 선별한 데이터프레임
+        df_parameter = input_dataframe[input_dataframe[parameter].str.startswith(para)]
+
+        # show_parameter 값이 False 라면 분류값 없애기
+        if not show_parameter:
+            df_parameter.drop(parameter, axis=1)
+
+        # 다음 조건에 따라 정렬
+        df_parameter = df_parameter.sort_values(by=['일련번호'])
+
+        # 정보를 각 셀에 입력
+        small_row = start_row
+        for maj_row in dataframe_to_rows(df_parameter, index=False, header=True):
+            small_col = start_col
+            for value in maj_row:
+                sheet.cell(row=small_row, column=small_col).value = value
+                # 각 셀에 테두리 추가
+                if small_row != start_row:
+                    sheet.cell(row=small_row, column=small_col).border = THIN_BORDER
+                # 수강횟수 셀의 경우 볼드처리
+                if small_col == start_col + len(df_parameter.columns) - 1:
+                    sheet.cell(row=small_row, column=small_col).font = Font(bold=True)
+                small_col += 1
+            small_row += 1
+        start_col += len(df_parameter.columns) + 1
+
+    # 행 높이 설정
+    sheet.row_dimensions[1].height = 8
+    sheet.row_dimensions[2].height = 40
+    sheet.row_dimensions[3].height = 8
+    sheet.row_dimensions[4].height = 20
+    sheet.row_dimensions[5].height = 20
+
+    # 열 너비 설정
+    for column in range(len(parameter_list)):
+        if column == 0:
+            sheet.column_dimensions[get_column_letter((num_input_columns + 1) * column + 1)].width = 1  # 빈 칸
+        else:
+            sheet.column_dimensions[get_column_letter((num_input_columns + 1) * column + 1)].width = 3  # 빈 칸
+        for i in range(len(col_width)):
+            sheet.column_dimensions[get_column_letter((num_input_columns + 1) * column + i + 2)].width = col_width[i]
+
+    # 틀 고정
+    sheet.freeze_panes = "A6"
+    
+    # 데이터프레임 헤더 부분 디자인
+    for column in range(len(parameter_list)):
+        # 셀 병합
+        sheet.merge_cells(start_row=4, start_column=(num_input_columns + 1) * column + 2,
+                          end_row=4, end_column=(num_input_columns + 1) * column + (num_input_columns + 1))
+        # 색상 설정 및 글자 서식 반영
+        sheet.cell(row=4, column=(num_input_columns + 1) * column + 2).fill = LIGHT
+        sheet.cell(row=4, column=(num_input_columns + 1) * column + 2).alignment = Alignment(horizontal='center',
+                                                                                             vertical='center')
+        sheet.cell(row=4, column=(num_input_columns + 1) * column + 2).font = Font(bold=True)
+        for i in range(2, (num_input_columns + 1) + 1):
+            sheet.cell(row=5, column=(num_input_columns + 1) * column + i).fill = DARK
+            sheet.cell(row=5, column=(num_input_columns + 1) * column + i).alignment = Alignment(horizontal='center',
+                                                                                                 vertical='center')
+            sheet.cell(row=5, column=(num_input_columns + 1) * column + i).font = Font(bold=True, color='FFFFFF')
+
+    # 엑셀 파일에 설명 추가
+    for column in range(len(parameter_list)):
+        sheet.cell(row=4, column=(num_input_columns + 1) * column + 2).value = \
+            explain_dataframe.loc[explain_dataframe[parameter] == parameter_list[column], "설명"].values[0]
