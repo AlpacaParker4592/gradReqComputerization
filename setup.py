@@ -1,9 +1,6 @@
 import pandas as pd  # 데이터프레임 생성용 패키지
 import functions as func  # functions.py 파일의 함수 사용
 import openpyxl
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
-from openpyxl.utils import get_column_letter
-from openpyxl.utils.dataframe import dataframe_to_rows
 
 # 1. 필수 파일 존재 여부 확인
 existence_number = func.tf_exist_all_files()
@@ -108,9 +105,6 @@ filename = 'template'
 template = openpyxl.load_workbook("./"+filename+".xlsx")
 sheet = template["개설과목정보"]
 
-# 내용 셀의 테두리 스타일
-THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
-
 # 입력 시 개설강좌정보 최좌상단 셀 위치
 start_row = 5
 start_col = 2
@@ -122,41 +116,32 @@ for major in list_major_code:
     # 다음 조건에 따라 정렬
     df_major_course = df_major_course.sort_values(by=['일련번호', '최초개설년도', '최초개설학기'])
     # 정보를 각 셀에 입력
-    func.excel_put_data(sheet, df_major_course, start_row, start_col)
+    func.excel_put_data(sheet=sheet, input_df=df_major_course, start_row=start_row, start_col=start_col)
     start_col += len(df_major_course.columns) + 1
     # print(df_major_course)
 
-
 # 4-5. 서식 및 디자인 설정
-# 선 디자인
-LEFT_BORDER = Border(Side('thick'), Side('thin'), Side('thick'), Side('thick'))  # 좌우상하 순서
-RIGHT_BORDER = Border(Side('thin'), Side('thick'), Side('thick'), Side('thick'))
-
 # 4-5-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
-sheet.row_dimensions[1].height = 8
-sheet.row_dimensions[2].height = 40
-sheet.row_dimensions[3].height = 8
-sheet.row_dimensions[4].height = 20
-sheet.row_dimensions[5].height = 20
-
+func.excel_row_height(sheet)
 # 열 너비
 list_major_width = [12, 9, 35, 15, 15, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 최초개설년도, 최초개설학기, 학점, 수강횟수
 for num_major in range(len(list_major_code)):
-    func.excel_width(sheet, num_major, list_major_width)
-
+    func.excel_width(sheet=sheet, start_col=num_major, list_width=list_major_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
 
 # 4-5-2. 강좌개설정보 부분 디자인
 for num_major in range(len(list_major_code)):
-    func.excel_design(sheet, num_major, num_course_columns, "B7DEE8", "31869B")
+    func.excel_design(sheet=sheet, start_col=num_major, num_columns=num_course_columns,
+                      light_color="B7DEE8", dark_color="31869B")
 
 # 4-6. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
 for num_major in range(len(list_major_code)):
     sheet.cell(row=4, column=(num_course_columns+1) * num_major + 2).value = \
         df_major_explain.loc[df_major_explain["전공분야코드"] == list_major_code[num_major], "설명"].values[0]
+
 
 # 5. 교양 및 예체능 과목에 수강횟수를 반영하여 엑셀에 저장
 sheet = template["교양과목-예체능"]
@@ -200,30 +185,25 @@ for elect in list_elect_pna_code:
     # 컬럼명 재배열(분류 삭제)
     df_elect_pna_course = df_elect_pna_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
     # 정보를 각 셀에 입력
-    func.excel_put_data(sheet, df_elect_pna_course, start_row, start_col)
+    func.excel_put_data(sheet=sheet, input_df=df_elect_pna_course, start_row=start_row, start_col=start_col)
     start_col += num_elect_pna_columns + 1
     # print(df_elective_course)
 
 # 5-5. 서식 및 디자인 설정
 # 5-5-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
-sheet.row_dimensions[1].height = 8
-sheet.row_dimensions[2].height = 40
-sheet.row_dimensions[3].height = 8
-sheet.row_dimensions[4].height = 20
-sheet.row_dimensions[5].height = 20
-
+func.excel_row_height(sheet)
 # 열 너비
 list_elect_pna_width = [12, 9, 35, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 학점, 수강횟수
 for num_elective in range(len(list_elect_pna_code)):
-    func.excel_width(sheet, num_elective, list_elect_pna_width)
-
+    func.excel_width(sheet=sheet, start_col=num_elective, list_width=list_elect_pna_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
 
 # 5-5-2. 강좌개설정보 부분 디자인
 for num_elect_pna in range(len(list_elect_pna_code)):
-    func.excel_design(sheet, num_elect_pna, num_elect_pna_columns, "E2EFDA", "548235")
+    func.excel_design(sheet=sheet, start_col=num_elect_pna, num_columns=num_elect_pna_columns,
+                      light_color="E2EFDA", dark_color="548235")
 
 # 5-6. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
@@ -240,49 +220,30 @@ start_row = 5
 start_col = 2
 
 # 정보를 각 셀에 입력
-func.excel_put_data(sheet, df_student, start_row, start_col)
+func.excel_put_data(sheet=sheet, input_df=df_student, start_row=start_row, start_col=start_col)
 
-# 6-2. 엑셀 파일에 학번 입력
-sheet.cell(row=2, column=2).value = "학번"
-sheet.cell(row=2, column=3).value = student_number
-
-# 6-3. 서식 및 디자인 설정
-# 셀 색상
-LIGHT = PatternFill(start_color="FCE4D6", end_color="FCE4D6", fill_type='solid')
-DARK = PatternFill(start_color="C65911", end_color="C65911", fill_type='solid')
-
-# 6-3-1. 행 높이, 열 너비 설정 및 틀 고정
+# 6-2. 서식 및 디자인 설정
+# 6-2-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
-sheet.row_dimensions[1].height = 8
-sheet.row_dimensions[2].height = 40
-sheet.row_dimensions[3].height = 8
-sheet.row_dimensions[4].height = 20
-sheet.row_dimensions[5].height = 20
-
+func.excel_row_height(sheet)
 # 열 너비
 list_student_width = [15, 15, 12, 9, 45, 9, 9]  # 수강연도, 수강학기, 전공분야코드, 일련번호, 과목명, 학점, 평점
-func.excel_width(sheet, 0, list_student_width)
-
+func.excel_width(sheet=sheet, start_col=0, list_width=list_student_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
 
-# 6-3-2. 학번 부분[B2:C2] 디자인
-# 선 디자인 반영
-sheet.cell(row=2, column=2).border = LEFT_BORDER
-sheet.cell(row=2, column=3).border = RIGHT_BORDER
-# 셀 색상 및 글꼴 굵기 반영(왼쪽 부분)
-sheet.cell(row=2, column=2).fill = LIGHT
-sheet.cell(row=2, column=2).font = Font(bold=True)
-# 글자 서식 반영
-sheet.cell(row=2, column=2).alignment = Alignment(horizontal='center', vertical='center')
-sheet.cell(row=2, column=3).alignment = Alignment(horizontal='center', vertical='center')
+# 6-2-2. 학번 부분[B2:C2] 내용 및 디자인
+cell_title = "학번"
+func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=student_number,
+                        start_column=2, light_color="FCE4D6")
 
-# 6-3-3. 강좌개설정보 부분 디자인
+# 6-2-3. 강좌개설정보 부분 디자인
 # 열 개수
 num_student_columns = len(df_student.columns)  # 성적표 데이터베이스 컬럼 개수
-func.excel_design(sheet, 0, num_student_columns, "FCE4D6", "C65911")
+func.excel_design(sheet=sheet, start_col=0, num_columns=num_student_columns,
+                  light_color="FCE4D6", dark_color="C65911")
 
-# 6-4. 엑셀 파일에 설명 추가
+# 6-3. 엑셀 파일에 설명 추가
 sheet.cell(row=4, column=2).value = "총 수강 과목"
 
 # 7. 입력한 정보를 저장

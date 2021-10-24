@@ -3,7 +3,6 @@
 """
 import pandas as pd  # 데이터프레임 생성용 패키지
 import os
-import openpyxl
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -344,3 +343,32 @@ def excel_design(sheet, start_col, num_columns, light_color, dark_color):  # col
         sheet.cell(row=5, column=(num_columns+1) * start_col + i).alignment = Alignment(horizontal='center',
                                                                                              vertical='center')
         sheet.cell(row=5, column=(num_columns+1) * start_col + i).font = Font(bold=True, color='FFFFFF')
+
+
+def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color):
+    # 셀 색상
+    LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
+    # 선 디자인
+    LEFT_BORDER = Border(Side('thick'), Side('thin'), Side('thick'), Side('thick'))  # 좌우상하 순서
+    RIGHT_BORDER = Border(Side('thin'), Side('thick'), Side('thick'), Side('thick'))
+
+    # 내용 반영
+    sheet.cell(row=2, column=start_column).value = str_title
+    sheet.cell(row=2, column=start_column+1).value = str_contents
+    # 선 디자인 반영
+    sheet.cell(row=2, column=start_column).border = LEFT_BORDER
+    sheet.cell(row=2, column=start_column+1).border = RIGHT_BORDER
+    # 셀 색상 및 글꼴 굵기 반영(제목 부분)
+    sheet.cell(row=2, column=start_column).fill = LIGHT
+    sheet.cell(row=2, column=start_column).font = Font(bold=True)
+    # 글자 서식 반영
+    sheet.cell(row=2, column=start_column).alignment = Alignment(horizontal='center', vertical='center')
+    sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='center', vertical='center')
+
+
+def excel_row_height(sheet):
+    sheet.row_dimensions[1].height = 8
+    sheet.row_dimensions[2].height = 40
+    sheet.row_dimensions[3].height = 8
+    sheet.row_dimensions[4].height = 20
+    sheet.row_dimensions[5].height = 20
