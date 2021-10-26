@@ -91,7 +91,6 @@ df_major_explain = df_major_explain.drop_duplicates("전공분야코드")
 df_elect_pna_explain = pd.DataFrame({"분류": ["hus", "ppe", "gsc", "pna"],
                                     "설명": ["HUS : 문사철", "PPE : 철사과", "GSC : 일반선택", "예체능 과목"]})
 
-
 # 4-1. 전공분야코드를 최초개설년도 및 학기 순으로 정렬
 df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
 df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
@@ -103,7 +102,7 @@ list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.
 # 4-3. 전공분야코드별로 엑셀 파일(template.xlsx)에 개설강좌정보 입력
 filename = 'template'
 template = openpyxl.load_workbook("./"+filename+".xlsx")
-sheet = template["개설과목정보"]
+sheet = template["전체개설과목정보"]
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
 start_row = 5
@@ -246,6 +245,51 @@ func.excel_design(sheet=sheet, start_col=0, num_columns=num_student_columns,
 # 6-3. 엑셀 파일에 설명 추가
 sheet.cell(row=4, column=2).value = "총 수강 과목"
 
-# 7. 입력한 정보를 저장
+# 7. 기초 및 (대학)전공과목 정보를 엑셀에 저장
+sheet = template["기초및전공과목"]
+# 7-1. 분류별로 엑셀 시트에 기입
+# 입력 시 최좌상단 셀 위치
+start_row = 5
+start_col = 2
+# 추출할 전공분야코드
+list_undergraduate_code = ["GS", "UC", "EC", "MA", "MC", "EV", "BS", "PS", "CH"]
+for under in list_undergraduate_code:
+    # 교양과목 분류에 따라 선별한 개설강좌정보
+    df_undergraduate_course = df_course[df_course["전공분야코드"] == under]
+    # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
+    df_undergraduate_course = df_undergraduate_course.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+    # 다음 조건에 따라 정렬
+    df_undergraduate_course = df_undergraduate_course.sort_values(by='일련번호')
+    # 컬럼명 재배열(최초개설년도 및 학기 삭제)
+    df_undergraduate_course = df_undergraduate_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+    # 정보를 각 셀에 입력
+    func.excel_put_data(sheet=sheet, input_df=df_undergraduate_course, start_row=start_row, start_col=start_col)
+    start_col += num_elect_pna_columns + 1
+    # print(df_elective_course)
+
+# 7-2. 서식 및 디자인 설정
+# 7-2-1. 행 높이, 열 너비 설정 및 틀 고정
+# 행 높이
+func.excel_row_height(sheet)
+# 열 너비
+list_undergraduate_width = [12, 9, 35, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 학점, 수강횟수
+num_undergraduate_columns = len(list_undergraduate_width)
+for num_undergraduate in range(len(list_undergraduate_code)):
+    func.excel_width(sheet=sheet, start_col=num_undergraduate, list_width=list_undergraduate_width)
+# 틀 고정
+sheet.freeze_panes = "A6"
+
+# 7-2-2. 강좌개설정보 부분 디자인
+for num_undergraduate in range(len(list_undergraduate_code)):
+    func.excel_design(sheet=sheet, start_col=num_undergraduate, num_columns=num_undergraduate_columns,
+                      light_color="FFF2CC", dark_color="BF8F00")
+
+# 7-3. 각 전공분야코드별 설명 추가
+# 엑셀 파일에 설명 추가
+for num_undergraduate in range(len(list_undergraduate_code)):
+    sheet.cell(row=4, column=(num_undergraduate_columns+1) * num_undergraduate + 2).value = \
+        df_major_explain.loc[df_major_explain["전공분야코드"] == list_undergraduate_code[num_undergraduate], "설명"].values[0]
+
+# 8. 입력한 정보를 저장
 # template.save(filename="computation_result_kor.xlsx")
 template.save(filename=filename+"_test.xlsx")

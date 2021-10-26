@@ -295,6 +295,16 @@ def summarize_elective_course():
 
 
 def excel_put_data(sheet, input_df, start_row, start_col):
+    """
+    데이터프레임을 엑셀에 넣기 위한 함수
+    :param sheet: 데이터프레임을 입력할 시트
+    :param input_df: 시트에 넣을 데이터프레임
+    :param start_row: 초기 행
+    :param start_col: 초기 열
+
+    :return:
+    없음(엑셀 시트에 직접 입력)
+    """
     # 내용 셀의 테두리 스타일
     THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
 
@@ -315,6 +325,15 @@ def excel_put_data(sheet, input_df, start_row, start_col):
 
 
 def excel_width(sheet, start_col, list_width):
+    """
+    엑셀 시트의 열 너비 설정 함수
+    :param sheet: 너비를 설정할 시트
+    :param start_col: 초기 열
+    :param list_width: 설정할 열 너비 리스트
+
+    :return:
+    없음(엑셀 시트에 직접 설정)
+    """
     num_list_width = len(list_width)  # 각 표의 열 개수(num...+1은 앞 빈칸을 포함한 열 개수)
     if start_col == 0:
         sheet.column_dimensions[get_column_letter(1+start_col*(num_list_width+1))].width = 1   # 빈 칸
@@ -325,7 +344,33 @@ def excel_width(sheet, start_col, list_width):
         sheet.column_dimensions[get_column_letter(1+start_col*(num_list_width+1) + (i+1))].width = list_width[i]
 
 
-def excel_design(sheet, start_col, num_columns, light_color, dark_color):  # color 값은 "#" 제외한 6자리 헥사코드
+def excel_row_height(sheet):
+    """
+    엑셀 시트의 행 높이 설정 함수
+    :param sheet: 높이를 설정할 시트
+
+    :return:
+    없음(엑셀 시트에 직접 설정)
+    """
+    sheet.row_dimensions[1].height = 8
+    sheet.row_dimensions[2].height = 40
+    sheet.row_dimensions[3].height = 8
+    sheet.row_dimensions[4].height = 20
+    sheet.row_dimensions[5].height = 20
+
+
+def excel_design(sheet, start_col, num_columns, light_color, dark_color):
+    """
+    표 디자인 설정 함수
+    :param sheet: 디자인 설정할 시트
+    :param start_col: 초기 열
+    :param num_columns: 디자인할 열 개수
+    :param light_color: 밝은 색("#" 제외한 6자리 헥사코드)
+    :param dark_color: 어두운 색("#" 제외한 6자리 헥사코드)
+
+    :return:
+    없음(엑셀 시트에 직접 설정)
+    """
     # 셀 색상
     LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
     DARK = PatternFill(start_color=dark_color, end_color=dark_color, fill_type='solid')
@@ -346,6 +391,17 @@ def excel_design(sheet, start_col, num_columns, light_color, dark_color):  # col
 
 
 def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color):
+    """
+    엑셀 내 상단(헤더, ex.B2:C2 등) 설명 삽입 관련 함수
+    :param sheet: 설명을 넣을 시트
+    :param str_title: 제목
+    :param str_contents: 내용
+    :param start_column: 시작 열(행의 경우 2로 고정)
+    :param light_color: 밝은 색("#" 제외한 6자리 헥사코드)
+
+    :return:
+    없음(엑셀 시트에 직접 설정)
+    """
     # 셀 색상
     LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
     # 선 디자인
@@ -365,10 +421,3 @@ def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color
     sheet.cell(row=2, column=start_column).alignment = Alignment(horizontal='center', vertical='center')
     sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='center', vertical='center')
 
-
-def excel_row_height(sheet):
-    sheet.row_dimensions[1].height = 8
-    sheet.row_dimensions[2].height = 40
-    sheet.row_dimensions[3].height = 8
-    sheet.row_dimensions[4].height = 20
-    sheet.row_dimensions[5].height = 20
