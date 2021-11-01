@@ -169,6 +169,13 @@ def summarize_student_information(ex_num):
     previous["과목명"] = previous["과목명"].str.strip()
     previous = previous[['수강연도', '수강학기', '전공분야코드', '일련번호', '과목명', '학점', '평점']]
 
+    # 학점환산치 열 추가
+    df_grade_value = pd.DataFrame({"평점": ["A+", "A0", "B+", "B0", "C+", "C0", "D+", "D0", "F", "S", "U"],
+                                   "환산치": [4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0, "-", "-"]})
+    previous = pd.merge(previous, df_grade_value, how='inner', on=["평점"])
+    # 데이터를 다음과 같이 정렬
+    previous = previous.sort_values(by=['수강연도', "수강학기"], axis=0)
+    
     # 1-7. 정리한 성적표 데이터를 수강 기등록 과목 데이터에 넣기
     course_registration = previous
 
@@ -214,6 +221,10 @@ def summarize_student_information(ex_num):
             present_retake['일련번호'] = ""
             present_retake['과목명'] = ""
             present_retake = present_retake[['전공분야코드', '일련번호', '과목명']]
+        
+        # 2-4. 현재수강화목의 평점 및 환산치 열 추가(값은 하이픈으로 지정)
+        present["평점"] = "-"
+        present["환산치"] = "-"
 
         # 3. 성적표 데이터(previous)와 현재 수강 과목(present) 통합
         if len(present) > 0:
@@ -419,5 +430,5 @@ def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color
     sheet.cell(row=2, column=start_column).font = Font(bold=True)
     # 글자 서식 반영
     sheet.cell(row=2, column=start_column).alignment = Alignment(horizontal='center', vertical='center')
-    sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='center', vertical='center')
+    sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
 

@@ -88,8 +88,8 @@ df_major_explain = pd.DataFrame({"전공분야코드": ["CC", "EC", "MS", "ME", 
 df_major_explain = df_major_explain.drop_duplicates("전공분야코드")
 
 # 교양 및 예체능 과목코드별 설명
-df_elect_pna_explain = pd.DataFrame({"분류": ["hus", "ppe", "gsc", "pna"],
-                                    "설명": ["HUS : 문사철", "PPE : 철사과", "GSC : 일반선택", "예체능 과목"]})
+df_elect_pna_res_explain = pd.DataFrame({"분류": ["hus", "ppe", "gsc", "pna", "res"],
+                                         "설명": ["HUS : 문사철", "PPE : 철사과", "GSC : 일반선택", "예체능 과목", "연구 과목"]})
 
 # 4-1. 전공분야코드를 최초개설년도 및 학기 순으로 정렬
 df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
@@ -135,15 +135,21 @@ for num_major in range(len(list_major_code)):
     func.excel_design(sheet=sheet, start_col=num_major, num_columns=num_course_columns,
                       light_color="B7DEE8", dark_color="31869B")
 
-# 4-6. 각 전공분야코드별 설명 추가
+# 4-6. 설명 부분[C2:D2] 내용 및 디자인
+cell_title = "설명"
+cell_contents = "전공분야코드 및 일련번호 중복: 있음\n교과목명 중복: 있음"
+func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_contents,
+                        start_column=3, light_color="B7DEE8")
+
+# 4-7. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
 for num_major in range(len(list_major_code)):
     sheet.cell(row=4, column=(num_course_columns+1) * num_major + 2).value = \
         df_major_explain.loc[df_major_explain["전공분야코드"] == list_major_code[num_major], "설명"].values[0]
 
 
-# 5. 교양 및 예체능 과목에 수강횟수를 반영하여 엑셀에 저장
-sheet = template["교양과목-예체능"]
+# 5. 교양, 예체능 및 연구 과목에 수강횟수를 반영하여 엑셀에 저장
+sheet = template["교양-예체능-연구"]
 
 # 5-1. 교양 과목 데이터프레임 정의
 # df_course 변수와 합쳐 교양 과목 변수(df_course)에 수강 횟수 정보 추가
@@ -161,54 +167,68 @@ df_physical_art = df_physical_art[df_physical_art["일련번호"].str.startswith
 df_physical_art = df_physical_art[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-# 데이터프레임 정렬
-df_physical_art = df_physical_art.sort_values(by=["전공분야코드", "일련번호"], axis=0)
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_physical_art["분류"] = "pna"
 
-# 5-3. 교양 과목과 예체능 데이터프레임 합산
-df_elect_pna = pd.concat([df_elective, df_physical_art])
-# 열 개수
-num_elect_pna_columns = len(df_elect_pna.columns)-1  # 분류 컬럼명을 제외한컬럼 개수
+# 5-3. 연구 과목 데이터프레임 정의
+list_tf_res1 = df_course["일련번호"] == "9102"
+list_tf_res2 = df_course["일련번호"] == "9103"
+df_research = df_course[list_tf_res1 | list_tf_res2]
+# 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
+df_research = df_research[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+# 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
+df_research = df_research.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+# 예체능 과목의 "분류" 컬럼명 새로 추가
+df_research["분류"] = "res"
 
-# 5-4. 분류별로 엑셀 시트에 기입
+# 5-4. 교양 과목과 예체능 데이터프레임 합산
+df_elect_pna_res = pd.concat([df_elective, df_physical_art, df_research])
+# 열 개수
+num_elect_pna_res_columns = len(df_elect_pna_res.columns)-1  # 분류 컬럼명을 제외한컬럼 개수
+
+# 5-5. 분류별로 엑셀 시트에 기입
 # 입력 시 최좌상단 셀 위치
 start_row = 5
 start_col = 2
 
-list_elect_pna_code = list(dict.fromkeys(df_elect_pna["분류"].values.tolist()))
-for elect in list_elect_pna_code:
-    df_elect_pna_course = df_elect_pna[df_elect_pna["분류"] == elect].drop(["분류"], axis=1)  # 교양과목 분류에 따라 선별한 개설강좌정보
+list_elect_pna_res_code = list(dict.fromkeys(df_elect_pna_res["분류"].values.tolist()))
+for elect in list_elect_pna_res_code:
+    df_elect_pna_res_course = df_elect_pna_res[df_elect_pna_res["분류"] == elect].drop(["분류"], axis=1)  # 교양과목 분류에 따라 선별한 개설강좌정보
     # 다음 조건에 따라 정렬
-    df_elect_pna_course = df_elect_pna_course.sort_values(by='일련번호')
+    df_elect_pna_res_course = df_elect_pna_res_course.sort_values(by=["전공분야코드",'일련번호'])
     # 컬럼명 재배열(분류 삭제)
-    df_elect_pna_course = df_elect_pna_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+    df_elect_pna_res_course = df_elect_pna_res_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
     # 정보를 각 셀에 입력
-    func.excel_put_data(sheet=sheet, input_df=df_elect_pna_course, start_row=start_row, start_col=start_col)
-    start_col += num_elect_pna_columns + 1
+    func.excel_put_data(sheet=sheet, input_df=df_elect_pna_res_course, start_row=start_row, start_col=start_col)
+    start_col += num_elect_pna_res_columns + 1
     # print(df_elective_course)
 
-# 5-5. 서식 및 디자인 설정
-# 5-5-1. 행 높이, 열 너비 설정 및 틀 고정
+# 5-6. 서식 및 디자인 설정
+# 5-6-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
 func.excel_row_height(sheet)
 # 열 너비
-list_elect_pna_width = [12, 9, 35, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 학점, 수강횟수
-for num_elective in range(len(list_elect_pna_code)):
-    func.excel_width(sheet=sheet, start_col=num_elective, list_width=list_elect_pna_width)
+list_elect_pna_res_width = [12, 9, 35, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 학점, 수강횟수
+for num_elective in range(len(list_elect_pna_res_code)):
+    func.excel_width(sheet=sheet, start_col=num_elective, list_width=list_elect_pna_res_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
 
-# 5-5-2. 강좌개설정보 부분 디자인
-for num_elect_pna in range(len(list_elect_pna_code)):
-    func.excel_design(sheet=sheet, start_col=num_elect_pna, num_columns=num_elect_pna_columns,
+# 5-6-2. 강좌개설정보 부분 디자인
+for num_elect_pna_res in range(len(list_elect_pna_res_code)):
+    func.excel_design(sheet=sheet, start_col=num_elect_pna_res, num_columns=num_elect_pna_res_columns,
                       light_color="E2EFDA", dark_color="548235")
 
-# 5-6. 각 전공분야코드별 설명 추가
+# 5-7. 설명 부분[C2:D2] 내용 및 디자인
+cell_title = "설명"
+cell_contents = "전공분야코드 및 일련번호 중복: 없음\n교과목명 중복: 없음"
+func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_contents,
+                        start_column=3, light_color="E2EFDA")
+# 5-8. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
-for num_elect_pna in range(len(list_elect_pna_code)):
-    sheet.cell(row=4, column=(num_elect_pna_columns+1) * num_elect_pna + 2).value = \
-        df_elect_pna_explain.loc[df_elect_pna_explain["분류"] == list_elect_pna_code[num_elect_pna], "설명"].values[0]
+for num_elect_pna_res in range(len(list_elect_pna_res_code)):
+    sheet.cell(row=4, column=(num_elect_pna_res_columns+1) * num_elect_pna_res + 2).value = \
+        df_elect_pna_res_explain.loc[df_elect_pna_res_explain["분류"] == list_elect_pna_res_code[num_elect_pna_res], "설명"].values[0]
 
 # 6. 성적 관련 정보를 엑셀에 저장
 sheet = template["수강과목요약"]
@@ -226,7 +246,7 @@ func.excel_put_data(sheet=sheet, input_df=df_student, start_row=start_row, start
 # 행 높이
 func.excel_row_height(sheet)
 # 열 너비
-list_student_width = [15, 15, 12, 9, 45, 9, 9]  # 수강연도, 수강학기, 전공분야코드, 일련번호, 과목명, 학점, 평점
+list_student_width = [15, 15, 12, 9, 45, 9, 9, 9]  # 수강연도, 수강학기, 전공분야코드, 일련번호, 과목명, 학점, 평점, 환산치
 func.excel_width(sheet=sheet, start_col=0, list_width=list_student_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
@@ -256,15 +276,20 @@ list_undergraduate_code = ["GS", "UC", "EC", "MA", "MC", "EV", "BS", "PS", "CH"]
 for under in list_undergraduate_code:
     # 교양과목 분류에 따라 선별한 개설강좌정보
     df_undergraduate_course = df_course[df_course["전공분야코드"] == under]
-    # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
-    df_undergraduate_course = df_undergraduate_course.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+    # 다음 조건에 따라 정렬
+    df_undergraduate_course = df_undergraduate_course.sort_values(by=["최초개설년도", "최초개설학기"])
+    # 같은 교과목명에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
+    df_undergraduate_course = df_undergraduate_course.drop_duplicates(["교과목명"], keep='last')
+    # GS 과목 및 UC 과목 외 대학원 과목 및 학사논문연구 교과목 제거
+    if under != "GS" and under != "UC":
+        df_undergraduate_course = df_undergraduate_course[df_undergraduate_course["일련번호"].str[0] <= "4"]
     # 다음 조건에 따라 정렬
     df_undergraduate_course = df_undergraduate_course.sort_values(by='일련번호')
     # 컬럼명 재배열(최초개설년도 및 학기 삭제)
     df_undergraduate_course = df_undergraduate_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
     # 정보를 각 셀에 입력
     func.excel_put_data(sheet=sheet, input_df=df_undergraduate_course, start_row=start_row, start_col=start_col)
-    start_col += num_elect_pna_columns + 1
+    start_col += num_elect_pna_res_columns + 1
     # print(df_elective_course)
 
 # 7-2. 서식 및 디자인 설정
@@ -284,7 +309,13 @@ for num_undergraduate in range(len(list_undergraduate_code)):
     func.excel_design(sheet=sheet, start_col=num_undergraduate, num_columns=num_undergraduate_columns,
                       light_color="FFF2CC", dark_color="BF8F00")
 
-# 7-3. 각 전공분야코드별 설명 추가
+# 7-3. 설명 부분[C2:D2] 내용 및 디자인
+cell_title = "설명"
+cell_contents = "전공분야코드 및 일련번호 중복: 없음\n교과목명 중복: 없음"
+func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_contents,
+                        start_column=3, light_color="FFF2CC")
+
+# 7-4. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
 for num_undergraduate in range(len(list_undergraduate_code)):
     sheet.cell(row=4, column=(num_undergraduate_columns+1) * num_undergraduate + 2).value = \
