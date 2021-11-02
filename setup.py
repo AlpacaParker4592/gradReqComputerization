@@ -53,43 +53,12 @@ for row in range(len(df_student)):
 # 4. 수강횟수가 반영된 강좌개설정보를 전공분야코드별로 엑셀에 저장
 # 엑셀 투입용 설명 데이터프레임
 # 전공분야코드별 설명
-df_major_explain = pd.DataFrame({"전공분야코드": ["CC", "EC", "MS", "ME", "EN", "LS",
-                                            "PH", "CH", "NA", "MD", "ET", "CT",
-                                            "RT", "FE", "EP", "AI", "MI", "IC",
-                                            "UC", "GS", "PS", "BS", "MC", "MA",
-                                            "EV", "MM", "IR", "LH", "PP", "EB",
-                                            "SS", "MB", "CM"
-                                            # 이후 추가된 분야코드 존재 시 아랫줄에 추가
-                                            ],
-                                 "설명": [
-                                        # 대학원 또는 학사·대학원 과정 전공 과목
-                                        "대학원 : 공통과목", "학사·대학원 : 전기전자컴퓨터공학부",
-                                        "대학원 : 신소재공학부", "대학원 : 기계공학부",
-                                        "대학원 : 지구·환경공학부", "대학원 : 생명공학부",
-                                        "대학원 : 물리·광과학과", "학사·대학원 : 화학과",
-                                        "대학원 : 나노바이오재료전자공학과", "학사 : (부전공)의생명공학  |  대학원 : 의생명공학과",
-                                        "학사 : (부전공)에너지  |  대학원 : 융합기술학제학부 - 에너지",
-                                        "학사 : (부전공)문화기술  |  대학원 : 융합기술학제학부 - 문화기술",
-                                        "대학원 : 융합기술학제학부 - 지능로봇", "학사 : (부전공)에너지  |  대학원 : 에너지융합대학원",
-                                        "대학원 : (부전공)석사 창업", "대학원 : AI 대학원",
-                                        "대학원 : (부전공)기술혁신", "대학원 : (舊)전기전자컴퓨터공학부",
-                                        # 학사 과정 전용 전공 과목
-                                        "학사 : 공통과목", "학사 : 기초교육학부",
-                                        "학사 : 물리·광과학과", "학사 : 생명과학부",
-                                        "학사 : 기계공학부", "학사 : 신소재공학부",
-                                        "학사 : 지구·환경공학부", "학사 : (부전공)수학",
-                                        "학사 : (부전공)지능로봇", "학사 : (부전공)인문사회 - 문화와 역사",
-                                        "학사 : (부전공)인문사회 - 공공정책·법정치사회", "학사 : (부전공)인문사회 - 경제·경영",
-                                        "학사 : (부전공)인문사회 - 과학기술과 사회", "학사 : (부전공)인문사회 - 마음과 행동",
-                                        "학사 : (舊)화학과"
-                                        # 이후 추가된 분야코드 존재 시 아랫줄에 추가
-                                        ]})
+df_major_explain = pd.read_excel("./data/code_explain.xlsx", sheet_name="major_code", keep_default_na=False)
 # 혹여 추후 추가된 분야코드에서 중복되는 코드 발견 시 자동으로 삭제
 df_major_explain = df_major_explain.drop_duplicates("전공분야코드")
 
 # 교양 및 예체능 과목코드별 설명
-df_elect_pna_res_explain = pd.DataFrame({"분류": ["hus", "ppe", "gsc", "pna", "res"],
-                                         "설명": ["HUS : 문사철", "PPE : 철사과", "GSC : 일반선택", "예체능 과목", "연구 과목"]})
+df_elect_pna_res_explain = pd.read_excel("./data/code_explain.xlsx", sheet_name="elect_pna_res", keep_default_na=False)
 
 # 4-1. 전공분야코드를 최초개설년도 및 학기 순으로 정렬
 df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
@@ -101,7 +70,7 @@ list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.
 
 # 4-3. 전공분야코드별로 엑셀 파일(template.xlsx)에 개설강좌정보 입력
 filename = 'template'
-template = openpyxl.load_workbook("./"+filename+".xlsx")
+template = openpyxl.load_workbook("./data/"+filename+".xlsx")
 sheet = template["전체개설과목정보"]
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
