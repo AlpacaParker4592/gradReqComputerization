@@ -6,6 +6,7 @@ import os
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.dataframe import dataframe_to_rows
+data_path = "./data/"
 
 def tf_exist_all_files():
     """
@@ -15,8 +16,7 @@ def tf_exist_all_files():
     2(현재 수강 교과목 정보 파일만 존재) 또는 3(필수 파일만 존재) 또는
     4(필수 파일이 존재하지 않음)
     """
-    file_path = "./"
-    file_list = os.listdir(file_path)
+    file_list = os.listdir(data_path)
 
     # 학부생 교과목 정보 파일(course_information_undergraduate.xls): 필수
     # 대학원생 교과목 정보 파일(course_information_graduate.xls): 필수
@@ -29,6 +29,7 @@ def tf_exist_all_files():
     tf_exist_file_e3 = "elective_course_list.xlsx" in file_list  # 교양 과목 정보 파일 존재 여부
     tf_exist_file_e4 = "grade_report.xls" in file_list  # 성적 정보 파일 존재 여부
     tf_exist_file_e5 = "template.xlsx" in file_list  # 템플릿 파일 존재 여부
+    tf_exist_file_e6 = "code_explain.xlsx" in file_list  # 엑셀 내 표 설명 파일 존재 여부
     tf_exist_file_s1 = "present_course_registration.xls" in file_list  # 현재 수강 교과목 정보 파일
 
     # 필수 파일 존재 여부 확인
@@ -72,6 +73,14 @@ def tf_exist_all_files():
         print("템플릿 파일(template.xls)이 존재하지 않습니다.")
         return 2
 
+    print("테이블 설명 파일:", end="\t\t")
+    if tf_exist_file_e6:
+        print("YES")
+    else:
+        print("NO")
+        print("템플릿 파일(code_explain.xlsx)이 존재하지 않습니다.")
+        return 2
+
     # 선택 파일 존재 여부 확인
     print("현재 수강 교과목 정보 파일:", end="\t")
     if tf_exist_file_s1:
@@ -92,11 +101,11 @@ def summarize_course(ex_num):
     # 1. 개설강좌정보 통합
     tf_exist_graduate = ex_num == 0 or ex_num == 1  # 대학원 개설강좌정보 파일 존재 유무
 
-    course_undergraduate = pd.read_excel("./course_information_undergraduate.xls")
+    course_undergraduate = pd.read_excel(data_path + "course_information_undergraduate.xls")
     course = course_undergraduate
     # 대학원 개설강좌정보 파일이 존재할 경우에만 추가하여 합치기
     if tf_exist_graduate:
-        course_graduate = pd.read_excel("./course_information_graduate.xls")
+        course_graduate = pd.read_excel(data_path + "course_information_graduate.xls")
         course = pd.concat([course_undergraduate, course_graduate])
 
     # 2. 개설강좌정보 중 필요한 컬럼만 추출 및 컬럼 내 데이터 추출
@@ -129,7 +138,7 @@ def summarize_student_information(ex_num):
     pd.set_option('display.max_columns', 100)  # 테이블 조회 시 테스트용 명령
 
     # 1. 성적표 데이터 요약
-    previous = pd.read_excel("./grade_report.xls")
+    previous = pd.read_excel(data_path + "grade_report.xls")
     # 1-1. 학번 추출
     student_number = int(previous.iloc[0][0].strip()[-8:])
 
@@ -182,7 +191,7 @@ def summarize_student_information(ex_num):
     tf_exist_present = ex_num == 0  # 현재수강과목 파일 존재 유무
     if tf_exist_present:
         # 2. 현재수강과목 데이터 요약
-        present = pd.read_excel("./present_course_registration.xls")
+        present = pd.read_excel(data_path + "present_course_registration.xls")
         present = present.drop(present.index[0], axis=0)  # 맨 처음 행(header data) 제거
 
         # 2-1. 필요한 열만 추출, 컬럼명 변경 및 필요없는 행 제거
@@ -269,17 +278,17 @@ def summarize_elective_course():
     교양 과목 관련 요약 dataframe
     """
     # 1. 분류별 데이터 추출
-    hus_list = pd.read_excel("./elective_course_list.xlsx", sheet_name="hus")
+    hus_list = pd.read_excel(data_path + "elective_course_list.xlsx", sheet_name="hus")
     hus_list = hus_list[['교과목', '학점', '교과목명']].drop_duplicates()
     hus_list = hus_list.reset_index(drop=True)
     hus_list['분류'] = 'hus'
 
-    ppe_list = pd.read_excel("./elective_course_list.xlsx", sheet_name="ppe")
+    ppe_list = pd.read_excel(data_path + "elective_course_list.xlsx", sheet_name="ppe")
     ppe_list = ppe_list[['교과목', '학점', '교과목명']].drop_duplicates()
     ppe_list = ppe_list.reset_index(drop=True)
     ppe_list['분류'] = 'ppe'
 
-    gsc_list = pd.read_excel("./elective_course_list.xlsx", sheet_name="gsc")
+    gsc_list = pd.read_excel(data_path + "elective_course_list.xlsx", sheet_name="gsc")
     gsc_list = gsc_list[['교과목', '학점', '교과목명']].drop_duplicates()
     gsc_list = gsc_list.reset_index(drop=True)
     gsc_list['분류'] = 'gsc'
