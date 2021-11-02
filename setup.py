@@ -291,5 +291,5 @@ for num_undergraduate in range(len(list_undergraduate_code)):
         df_major_explain.loc[df_major_explain["전공분야코드"] == list_undergraduate_code[num_undergraduate], "설명"].values[0]
 
 # 8. 입력한 정보를 저장
-# template.save(filename="computation_result_kor.xlsx")
+# template.save(filename="computation_result_kor.xlsm")
 template.save(filename=filename+"_test.xlsm")
