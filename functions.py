@@ -28,7 +28,7 @@ def tf_exist_all_files():
     tf_exist_file_e2 = "course_information_graduate.xls" in file_list  # 대학원생 교과목 정보 파일 존재 여부
     tf_exist_file_e3 = "elective_course_list.xlsx" in file_list  # 교양 과목 정보 파일 존재 여부
     tf_exist_file_e4 = "grade_report.xls" in file_list  # 성적 정보 파일 존재 여부
-    tf_exist_file_e5 = "template.xlsx" in file_list  # 템플릿 파일 존재 여부
+    tf_exist_file_e5 = "template.xlsm" in file_list  # 템플릿 파일 존재 여부
     tf_exist_file_e6 = "code_explain.xlsx" in file_list  # 엑셀 내 표 설명 파일 존재 여부
     tf_exist_file_s1 = "present_course_registration.xls" in file_list  # 현재 수강 교과목 정보 파일
 
