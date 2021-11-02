@@ -70,7 +70,7 @@ def tf_exist_all_files():
         print("YES")
     else:
         print("NO")
-        print("템플릿 파일(template.xls)이 존재하지 않습니다.")
+        print("템플릿 파일(template.xlsm)이 존재하지 않습니다.")
         return 2
 
     print("테이블 설명 파일:", end="\t\t")
