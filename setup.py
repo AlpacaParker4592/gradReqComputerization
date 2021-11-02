@@ -70,7 +70,7 @@ list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.
 
 # 4-3. 전공분야코드별로 엑셀 파일(template.xlsx)에 개설강좌정보 입력
 filename = 'template'
-template = openpyxl.load_workbook("./data/"+filename+".xlsx")
+template = openpyxl.load_workbook("./data/"+filename+".xlsm", keep_vba=True)
 sheet = template["전체개설과목정보"]
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
@@ -292,4 +292,4 @@ for num_undergraduate in range(len(list_undergraduate_code)):
 
 # 8. 입력한 정보를 저장
 # template.save(filename="computation_result_kor.xlsx")
-template.save(filename=filename+"_test.xlsx")
+template.save(filename=filename+"_test.xlsm")
