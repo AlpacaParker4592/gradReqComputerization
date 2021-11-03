@@ -11,6 +11,8 @@ if existence_number == 4:
 df_course = func.summarize_course(existence_number)
 student_number, df_student = func.summarize_student_information(existence_number)
 df_elective = func.summarize_elective_course()
+list_undergraduate_major_code = ["GS", "UC", "EC", "MA", "MC", "EV", "BS", "PS", "CH"]
+
 # template = openpyxl.load_workbook("./data/template.xlsx")
 template = openpyxl.load_workbook("./data/template.xlsm", keep_vba=True)
 
@@ -21,6 +23,7 @@ template = openpyxl.load_workbook("./data/template.xlsm", keep_vba=True)
 2. 강좌개설정보에서 다음 조건을 만족하는 과목을 추가로 추출함.
     2-1. 1에서 추출한 과목과 [교과목명]이 같은 과목(자신 포함).
 3. 2에서 만족하는 과목은 수강 횟수에 1을 더함.
+4. 학생 수강 과목 내 모든 과목을 조회할 때까지 1부터 3 과정을 반복함.
 """
 # 3-1. 강좌개설정보 변수(df_course)에 수강 횟수 정보 추가
 df_course['수강횟수'] = 0
@@ -63,14 +66,15 @@ df_major_explain = df_major_explain.drop_duplicates("전공분야코드")
 df_elect_pna_res_explain = pd.read_excel("./data/code_explain.xlsx", sheet_name="elect_pna_res", keep_default_na=False)
 
 # 4-1. 전공분야코드를 최초개설년도 및 학기 순으로 정렬
-df_major_code = df_course.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
-df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
+# 단, 다음 9개 코드는 순서대로 맨 앞에 정렬 - list_undergraduate_major_code(GS, UC, EC, MA, MC, EV, BS, CS, CH)
+df_except_ug_major_code = df_course[~df_course["전공분야코드"].isin(list_undergraduate_major_code)]
+df_except_ug_major_code = df_except_ug_major_code.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
+df_except_ug_major_code = df_except_ug_major_code.sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
 
-# 4-2. 전공분야코드 중복 제거
-list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.tolist()))
-# print(list_major_code)
+# 전공분야코드 중복 제거
+list_major_code = list_undergraduate_major_code + list(dict.fromkeys(df_except_ug_major_code["전공분야코드"].values.tolist()))
 
-# 4-3. 전공분야코드별로 템플릿 엑셀 파일에 개설강좌정보 입력
+# 4-2. 전공분야코드별로 템플릿 엑셀 파일에 개설강좌정보 입력
 sheet = template["전체개설과목정보"]
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
@@ -88,8 +92,8 @@ for major in list_major_code:
     start_col += len(df_major_course.columns) + 1
     # print(df_major_course)
 
-# 4-5. 서식 및 디자인 설정
-# 4-5-1. 행 높이, 열 너비 설정 및 틀 고정
+# 4-3. 서식 및 디자인 설정
+# 4-3-1. 행 높이, 열 너비 설정 및 틀 고정
 # 행 높이
 func.excel_row_height(sheet)
 # 열 너비
@@ -99,18 +103,18 @@ for num_major in range(len(list_major_code)):
 # 틀 고정
 sheet.freeze_panes = "A6"
 
-# 4-5-2. 강좌개설정보 부분 디자인
+# 4-3-2. 강좌개설정보 부분 디자인
 for num_major in range(len(list_major_code)):
     func.excel_design(sheet=sheet, start_col=num_major, num_columns=num_course_columns,
                       light_color="B7DEE8", dark_color="31869B")
 
-# 4-6. 설명 부분[C2:D2] 내용 및 디자인
+# 4-4. 설명 부분[C2:D2] 내용 및 디자인
 cell_title = "설명"
 cell_contents = "전공분야코드 및 일련번호 중복: 있음\n교과목명 중복: 있음"
 func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_contents,
                         start_column=3, light_color="B7DEE8")
 
-# 4-7. 각 전공분야코드별 설명 추가
+# 4-5. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
 for num_major in range(len(list_major_code)):
     sheet.cell(row=4, column=(num_course_columns+1) * num_major + 2).value = \
@@ -162,9 +166,10 @@ start_col = 2
 
 list_elect_pna_res_code = list(dict.fromkeys(df_elect_pna_res["분류"].values.tolist()))
 for elect in list_elect_pna_res_code:
-    df_elect_pna_res_course = df_elect_pna_res[df_elect_pna_res["분류"] == elect].drop(["분류"], axis=1)  # 교양과목 분류에 따라 선별한 개설강좌정보
+    # 교양과목 분류에 따라 선별한 개설강좌정보
+    df_elect_pna_res_course = df_elect_pna_res[df_elect_pna_res["분류"] == elect].drop(["분류"], axis=1)
     # 다음 조건에 따라 정렬
-    df_elect_pna_res_course = df_elect_pna_res_course.sort_values(by=["전공분야코드",'일련번호'])
+    df_elect_pna_res_course = df_elect_pna_res_course.sort_values(by=["전공분야코드", '일련번호'])
     # 컬럼명 재배열(분류 삭제)
     df_elect_pna_res_course = df_elect_pna_res_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
     # 정보를 각 셀에 입력
@@ -197,7 +202,8 @@ func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_con
 # 엑셀 파일에 설명 추가
 for num_elect_pna_res in range(len(list_elect_pna_res_code)):
     sheet.cell(row=4, column=(num_elect_pna_res_columns+1) * num_elect_pna_res + 2).value = \
-        df_elect_pna_res_explain.loc[df_elect_pna_res_explain["분류"] == list_elect_pna_res_code[num_elect_pna_res], "설명"].values[0]
+        df_elect_pna_res_explain.loc[df_elect_pna_res_explain["분류"] == list_elect_pna_res_code[num_elect_pna_res],
+                                     "설명"].values[0]
 
 # 6. 성적 관련 정보를 엑셀에 저장
 sheet = template["수강과목요약"]
@@ -240,9 +246,7 @@ sheet = template["기초및전공과목"]
 # 입력 시 최좌상단 셀 위치
 start_row = 5
 start_col = 2
-# 추출할 전공분야코드
-list_undergraduate_code = ["GS", "UC", "EC", "MA", "MC", "EV", "BS", "PS", "CH"]
-for under in list_undergraduate_code:
+for under in list_undergraduate_major_code:
     # 교양과목 분류에 따라 선별한 개설강좌정보
     df_undergraduate_course = df_course[df_course["전공분야코드"] == under]
     # 다음 조건에 따라 정렬
@@ -268,13 +272,13 @@ func.excel_row_height(sheet)
 # 열 너비
 list_undergraduate_width = [12, 9, 35, 9, 9]  # 전공분야코드, 일련번호, 교과목명, 학점, 수강횟수
 num_undergraduate_columns = len(list_undergraduate_width)
-for num_undergraduate in range(len(list_undergraduate_code)):
+for num_undergraduate in range(len(list_undergraduate_major_code)):
     func.excel_width(sheet=sheet, start_col=num_undergraduate, list_width=list_undergraduate_width)
 # 틀 고정
 sheet.freeze_panes = "A6"
 
 # 7-2-2. 강좌개설정보 부분 디자인
-for num_undergraduate in range(len(list_undergraduate_code)):
+for num_undergraduate in range(len(list_undergraduate_major_code)):
     func.excel_design(sheet=sheet, start_col=num_undergraduate, num_columns=num_undergraduate_columns,
                       light_color="FFF2CC", dark_color="BF8F00")
 
@@ -286,9 +290,10 @@ func.excel_explain_cell(sheet=sheet, str_title=cell_title, str_contents=cell_con
 
 # 7-4. 각 전공분야코드별 설명 추가
 # 엑셀 파일에 설명 추가
-for num_undergraduate in range(len(list_undergraduate_code)):
+for num_undergraduate in range(len(list_undergraduate_major_code)):
     sheet.cell(row=4, column=(num_undergraduate_columns+1) * num_undergraduate + 2).value = \
-        df_major_explain.loc[df_major_explain["전공분야코드"] == list_undergraduate_code[num_undergraduate], "설명"].values[0]
+        df_major_explain.loc[df_major_explain["전공분야코드"] == list_undergraduate_major_code[num_undergraduate],
+                             "설명"].values[0]
 
 # 8. 입력한 정보를 저장
 # template.save(filename="computerization_result_kor.xlsx")
