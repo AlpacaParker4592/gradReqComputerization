@@ -11,6 +11,8 @@ if existence_number == 4:
 df_course = func.summarize_course(existence_number)
 student_number, df_student = func.summarize_student_information(existence_number)
 df_elective = func.summarize_elective_course()
+# template = openpyxl.load_workbook("./data/template.xlsx")
+template = openpyxl.load_workbook("./data/template.xlsm", keep_vba=True)
 
 # 3. 강좌개설정보에 수강한 강좌 반영
 """
@@ -68,9 +70,7 @@ df_major_code = df_major_code.sort_values(by=['최초개설년도', '최초개�
 list_major_code = list(dict.fromkeys(df_major_code["전공분야코드"].values.tolist()))
 # print(list_major_code)
 
-# 4-3. 전공분야코드별로 엑셀 파일(template.xls_)에 개설강좌정보 입력
-# template = openpyxl.load_workbook("./data/template.xlsx")
-template = openpyxl.load_workbook("./data/template.xlsm", keep_vba=True)
+# 4-3. 전공분야코드별로 템플릿 엑셀 파일에 개설강좌정보 입력
 sheet = template["전체개설과목정보"]
 
 # 입력 시 개설강좌정보 최좌상단 셀 위치
