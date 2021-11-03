@@ -327,7 +327,7 @@ def excel_put_data(sheet, input_df, start_row, start_col):
     없음(엑셀 시트에 직접 입력)
     """
     # 내용 셀의 테두리 스타일
-    THIN_BORDER = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
+    thin_border = Border(Side('thin'), Side('thin'), Side('thin'), Side('thin'))  # 좌우상하 순서
 
     # 정보를 각 셀에 입력
     row = start_row
@@ -337,7 +337,7 @@ def excel_put_data(sheet, input_df, start_row, start_col):
             sheet.cell(row=row, column=col).value = value
             # 각 셀에 테두리 추가
             if row != start_row:
-                sheet.cell(row=row, column=col).border = THIN_BORDER
+                sheet.cell(row=row, column=col).border = thin_border
             # 수강횟수 셀의 경우 볼드처리
             if col == start_col+len(input_df.columns)-1:
                 sheet.cell(row=row, column=col).font = Font(bold=True)
@@ -393,21 +393,21 @@ def excel_design(sheet, start_col, num_columns, light_color, dark_color):
     없음(엑셀 시트에 직접 설정)
     """
     # 셀 색상
-    LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
-    DARK = PatternFill(start_color=dark_color, end_color=dark_color, fill_type='solid')
+    light = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
+    dark = PatternFill(start_color=dark_color, end_color=dark_color, fill_type='solid')
 
     # 셀 병합
     sheet.merge_cells(start_row=4, start_column=(num_columns+1) * start_col + 2,
                       end_row=4, end_column=(num_columns+1) * start_col + (num_columns+1))
     # 색상 설정 및 글자 서식 반영
-    sheet.cell(row=4, column=(num_columns+1) * start_col + 2).fill = LIGHT
+    sheet.cell(row=4, column=(num_columns+1) * start_col + 2).fill = light
     sheet.cell(row=4, column=(num_columns+1) * start_col + 2).alignment = Alignment(horizontal='center',
-                                                                                         vertical='center')
+                                                                                    vertical='center')
     sheet.cell(row=4, column=(num_columns+1) * start_col + 2).font = Font(bold=True)
     for i in range(2, (num_columns+1) + 1):
-        sheet.cell(row=5, column=(num_columns+1) * start_col + i).fill = DARK
+        sheet.cell(row=5, column=(num_columns+1) * start_col + i).fill = dark
         sheet.cell(row=5, column=(num_columns+1) * start_col + i).alignment = Alignment(horizontal='center',
-                                                                                             vertical='center')
+                                                                                        vertical='center')
         sheet.cell(row=5, column=(num_columns+1) * start_col + i).font = Font(bold=True, color='FFFFFF')
 
 
@@ -424,21 +424,20 @@ def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color
     없음(엑셀 시트에 직접 설정)
     """
     # 셀 색상
-    LIGHT = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
+    light = PatternFill(start_color=light_color, end_color=light_color, fill_type='solid')
     # 선 디자인
-    LEFT_BORDER = Border(Side('thick'), Side('thin'), Side('thick'), Side('thick'))  # 좌우상하 순서
-    RIGHT_BORDER = Border(Side('thin'), Side('thick'), Side('thick'), Side('thick'))
+    left_border = Border(Side('thick'), Side('thin'), Side('thick'), Side('thick'))  # 좌우상하 순서
+    right_border = Border(Side('thin'), Side('thick'), Side('thick'), Side('thick'))
 
     # 내용 반영
     sheet.cell(row=2, column=start_column).value = str_title
     sheet.cell(row=2, column=start_column+1).value = str_contents
     # 선 디자인 반영
-    sheet.cell(row=2, column=start_column).border = LEFT_BORDER
-    sheet.cell(row=2, column=start_column+1).border = RIGHT_BORDER
+    sheet.cell(row=2, column=start_column).border = left_border
+    sheet.cell(row=2, column=start_column+1).border = right_border
     # 셀 색상 및 글꼴 굵기 반영(제목 부분)
-    sheet.cell(row=2, column=start_column).fill = LIGHT
+    sheet.cell(row=2, column=start_column).fill = light
     sheet.cell(row=2, column=start_column).font = Font(bold=True)
     # 글자 서식 반영
     sheet.cell(row=2, column=start_column).alignment = Alignment(horizontal='center', vertical='center')
     sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
-
