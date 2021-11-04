@@ -13,7 +13,7 @@
     + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***Precaution for Users*** 문단을 참고하십시오.
 
     > **기본 제공 파일**
-    >    1. 템플릿 파일(template.xlsm(기본값, 자동 필터링 기능 있음), template.xlsx(자동 필터링 기능 없음))
+    >    1. 템플릿 파일(template.xlsm(자동 필터링 기능 있음), template.xlsx(자동 필터링 기능 없음))
     >    2. 교양 과목 목록 파일(elective_course_list.xlsx)
     >
     > **필수 저장 파일**
