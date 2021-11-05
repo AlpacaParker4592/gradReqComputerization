@@ -37,7 +37,7 @@
     >    1. 현재 수강 과목 정보 파일(present_course_registration.xls)
     >        - ZEUS의 '수업 > 수강신청내역조회' 탭 선택 후 파일 다운로드
 
-3. 압축 해제한 폴더 내에서 exe 파일 실행 후 생성된 파일(*computerization_result_kor.xlsm*)을 확인하시면 만족 현황을 조회하실 수 있습니다.
+3. 압축 해제한 폴더 내에서 exe 파일 실행 후 생성된 파일(*computerization_result_kor.xlsm 또는 .xlsx*)을 확인하시면 만족 현황을 조회하실 수 있습니다.
 
 ## Precaution for Users
 ### 프로그램 이용 관련
