@@ -3,9 +3,9 @@
 <img src="https://img.shields.io/badge/Python-3766AB?style=flat&logo=Python&logoColor=white"/>
 <img src="https://img.shields.io/badge/MS Excel 2016 or later-217346?style=flat&logo=Microsoft Excel&logoColor=white"/>
 </div><br>
-<div align="center">
+
 ![result](https://user-images.githubusercontent.com/63055303/140486999-ba639f3d-0bb3-4f75-82a5-94164020c6bb.png)
-</div>
+
 이전의 [졸업 요건 전산화 프로그램](https://github.com/AlpacaParker4592/GIST_Credit_Analysis_Program_without_IDE) 
 배포와 관련하여 관심을 가져주신 모든 분들께 감사드립니다.
 해당 프로그램은 이전과 같이 성적표 파일과 현재 수강 중인 과목 파일을 바탕으로 졸업요건을 전산화하여
