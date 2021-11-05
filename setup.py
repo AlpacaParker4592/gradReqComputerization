@@ -1,6 +1,7 @@
 import pandas as pd  # 데이터프레임 생성용 패키지
 import functions as func  # functions.py 파일의 함수 사용
 import openpyxl
+import os
 
 # 1. 필수 파일 존재 여부 확인
 existence_number = func.tf_exist_all_files()
@@ -304,3 +305,5 @@ for i in range(len(list_format)):
     # 9. 입력한 정보를 저장
     template.save(filename="computerization_result_kor"+list_format[i])
     print("Saved as", "computerization_result_kor"+list_format[i])
+
+os.system("pause")
