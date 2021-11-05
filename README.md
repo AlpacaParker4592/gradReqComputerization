@@ -24,7 +24,7 @@
     > **기본 제공 파일**
     >    1. 템플릿 파일(template.xlsm(자동 필터링 기능 있음), template.xlsx(자동 필터링 기능 없음))
     >    2. 교양 과목 목록 파일(elective_course_list.xlsx)
-    >
+    ><br>
     > **필수 저장 파일**
     >    1. 2015학년 1학기부터의 대학 과목 정보 파일(course_information_undergraduate.xls)
     >        - ZEUS의 '**수업 > 개설강좌조회**' 탭 선택 후 대학분류를 '**GIST대학**'으로 조회하여 파일 다운로드
@@ -32,7 +32,7 @@
     >        - ZEUS의 '**수업 > 개설강좌조회**' 탭 선택 후 대학분류를 '**대학원**'으로 조회하여 파일 다운로드
     >    3. 성적 관련 파일(grade_report.xls)
     >        - ZEUS의 '**성적 > 개인성적조회**' 탭 선택 후 '**Report Card**' 버튼으로 성적표 다운로드(Kor, Eng 선택 무관)
-    >    
+    ><br>
     > **선택 저장 파일**
     >    1. 현재 수강 과목 정보 파일(present_course_registration.xls)
     >        - ZEUS의 '수업 > 수강신청내역조회' 탭 선택 후 파일 다운로드
