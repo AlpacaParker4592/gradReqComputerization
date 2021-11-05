@@ -4,6 +4,8 @@
 <img src="https://img.shields.io/badge/MS Excel 2016 or later-217346?style=flat&logo=Microsoft Excel&logoColor=white"/>
 </div><br>
 
+![result](https://user-images.githubusercontent.com/63055303/140486999-ba639f3d-0bb3-4f75-82a5-94164020c6bb.png)
+
 이전의 [졸업 요건 전산화 프로그램](https://github.com/AlpacaParker4592/GIST_Credit_Analysis_Program_without_IDE) 
 배포와 관련하여 관심을 가져주신 모든 분들께 감사드립니다.
 해당 프로그램은 이전과 같이 성적표 파일과 현재 수강 중인 과목 파일을 바탕으로 졸업요건을 전산화하여
@@ -83,4 +85,5 @@
     >     + 'MC2102: **유체역학 I**' - 'EV2210: **유체역학 I**'
     > 3. 2에서 추출한 과목들(1에서 추출한 과목 포함)의 이수 횟수에 1을 더함.
     > 4. 수강 또는 이수한 모든 과목을 확인할 때까지 과정 1부터 3까지를 반복함.
-+ 실행 중 오류가 발생하거나 나온 결과가 실제 반영되는 학점과 다른 사항을 발견할 시 <br>**lhh-znso4(at)gm.gist.ac.kr**로 연락 바랍니다.
++ 실행 중 오류가 발생하거나 나온 결과가 실제 반영되는 학점과 다른 사항을 발견할 시 Github Issues 탭을 이용하시거나
+<br>**lhh-znso4(at)gm.gist.ac.kr**로 연락 바랍니다.
