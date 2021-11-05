@@ -2,7 +2,7 @@
 <div align="center">
 <img src="https://img.shields.io/badge/Python-3766AB?style=flat&logo=Python&logoColor=white"/>
 <img src="https://img.shields.io/badge/MS Excel 2016 or later-217346?style=flat&logo=Microsoft Excel&logoColor=white"/>
-</div>
+</div><br>
 
 이전의 [졸업 요건 전산화 프로그램](https://github.com/AlpacaParker4592/GIST_Credit_Analysis_Program_without_IDE) 
 배포와 관련하여 관심을 가져주신 모든 분들께 감사드립니다.
