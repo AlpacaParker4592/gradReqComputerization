@@ -1,4 +1,10 @@
-# Graduation Requirements Computerization Project *for GIST Undergraduates*
+# <center>Graduation Requirements Computerization Project</center>
+<center>
+    <img src="https://img.shields.io/badge/Python-3766AB?style=flat-square&logo=Python&logoColor=white"/>
+    <img src="https://img.shields.io/badge/MS Excel 2016 or later-217346?style=flat-square&logo=Microsoft Excel&logoColor=white"/>
+    
+</center>
+
 이전의 [졸업 요건 전산화 프로그램](https://github.com/AlpacaParker4592/GIST_Credit_Analysis_Program_without_IDE) 
 배포와 관련하여 관심을 가져주신 모든 분들께 감사드립니다.
 해당 프로그램은 이전과 같이 성적표 파일과 현재 수강 중인 과목 파일을 바탕으로 졸업요건을 전산화하여
@@ -14,7 +20,7 @@
 ## Execution Process
 1. Code 버튼을 눌러 해당 폴더를 zip 파일로 내려받은 후 압축을 해제하십시오.
 2. 프로그램 실행 전 다음 파일을 괄호 안의 이름으로 Data 폴더 내에 저장해야 합니다.
-    + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***Precaution for Users*** 문단을 참고하십시오.
+    + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***[Precaution for Users](#precaution-for-users)*** 문단을 참고하십시오.
 
     > **기본 제공 파일**
     >    1. 템플릿 파일(template.xlsm(자동 필터링 기능 있음), template.xlsx(자동 필터링 기능 없음))
