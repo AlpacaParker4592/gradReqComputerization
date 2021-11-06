@@ -4,7 +4,11 @@
 <img src="https://img.shields.io/badge/MS Excel 2016 or later-217346?style=flat&logo=Microsoft Excel&logoColor=white"/>
 </div><br>
 
+<div align="center">
+
 ![result](https://user-images.githubusercontent.com/63055303/140486999-ba639f3d-0bb3-4f75-82a5-94164020c6bb.png)
+
+</div>
 
 이전의 [졸업 요건 전산화 프로그램](https://github.com/AlpacaParker4592/GIST_Credit_Analysis_Program_without_IDE) 
 배포와 관련하여 관심을 가져주신 모든 분들께 감사드립니다.
@@ -45,12 +49,20 @@
 ## Precaution for Users
 ### 프로그램 이용 관련
 #### ZEUS 내 xls 파일 다운로드
+<div align="center">
+
 ![save_xls_file](https://user-images.githubusercontent.com/63055303/140265210-bd61aba6-e79f-4e3f-b37b-89ad84fdd88a.png)
+
+</div>
 
 + 과목 정보 파일 등 엑셀 파일 저장 시 위 그림과 같이 테이블 상에서 우클릭 후 '엑셀 저장' 버튼을 눌러 저장할 수 있습니다.
 그 결과 data 폴더 내 파일 구성이 다음과 같이 이루어져야 합니다.
 
+<div align="center">
+
 ![file_configuration](https://user-images.githubusercontent.com/63055303/140388776-6dacf095-40f3-4c4b-a417-626969110e62.png)
+
+</div>
 
 #### 그 이외
 + **해당 프로그램에서 나온 결과는 귀하의 졸업을 보장하지 않습니다.** 참고용으로만 사용하시길 바랍니다.
