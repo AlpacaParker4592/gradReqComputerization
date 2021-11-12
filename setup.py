@@ -258,8 +258,8 @@ for i in range(len(list_format)):
         df_undergraduate_course = df_course[df_course["전공분야코드"] == under]
         # 다음 조건에 따라 정렬
         df_undergraduate_course = df_undergraduate_course.sort_values(by=["최초개설년도", "최초개설학기"])
-        # 같은 교과목명에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
-        df_undergraduate_course = df_undergraduate_course.drop_duplicates(["교과목명"], keep='last')
+        # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
+        df_undergraduate_course = df_undergraduate_course.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
         # GS 과목 및 UC 과목 외 대학원 과목 및 학사논문연구 교과목 제거
         if under != "GS" and under != "UC":
             df_undergraduate_course = df_undergraduate_course[df_undergraduate_course["일련번호"].str[0] <= "4"]
