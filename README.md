@@ -26,7 +26,7 @@
 ## Execution Process
 1. Code 버튼을 눌러 해당 폴더를 zip 파일로 내려받은 후 압축을 해제하십시오.
 2. 프로그램 실행 전 다음 파일을 괄호 안의 이름으로 Data 폴더 내에 저장해야 합니다.
-    + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***[Precaution for Users](#precaution-for-users)*** 문단을 참고하십시오.
+    + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***[Precaution for Users](#precaution-for-users)*** 문단을 참고 바랍니다.
 
     > + **기본 제공 파일**
     >    1. 템플릿 파일(template.xlsm(자동 필터링 기능 있음), template.xlsx(자동 필터링 기능 없음))
@@ -98,6 +98,8 @@
     >     + 'MC2102: **유체역학 I**' - 'EV2210: **유체역학 I**'
     > 3. 2에서 추출한 과목들(1에서 추출한 과목 포함)의 이수 횟수에 1을 더함.
     > 4. 수강 또는 이수한 과목을 모두 확인할 때까지 과정 1부터 3까지를 반복함.
++ 현재 전공 제한 학점(17학번 이전: 36학점, 18학번 이후: 42학점)을 초과하여 전공 과목을 수강한 경우 **타 전공 코드쉐어 과목의 적용과 무관하게 모두 절삭하여 반영**하고 있습니다.
+이 점 양해 부탁드립니다. 자세한 내용은 하단의 **Github Issues** 탭에서 확인 바랍니다.
 + 실행 중 오류가 발생하거나 나온 결과가 실제 반영되는 학점과 다른 사항을 발견할 시
 [**Github Issues**](https://github.com/AlpacaParker4592/gradReqComputerization/issues) 탭을 이용하거나(권장)
 **lhh-znso4(at)gm.gist.ac.kr**로 연락해주시길 바랍니다.
