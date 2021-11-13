@@ -78,6 +78,7 @@ list_major_code = list_undergraduate_major_code + list(dict.fromkeys(df_except_u
 df_elective = pd.merge(df_elective, df_course, how='inner', on=["전공분야코드", "일련번호", "교과목명"])
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_elective = df_elective.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+df_elective = df_elective.drop_duplicates(["교과목명"], keep='last')
 # 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
 df_elective = df_elective[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수", "분류"]]
 
@@ -89,6 +90,7 @@ df_physical_art = df_physical_art[df_physical_art["일련번호"].str.startswith
 df_physical_art = df_physical_art[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+df_physical_art = df_physical_art.drop_duplicates(["교과목명"], keep='last')
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_physical_art["분류"] = "pna"
 
@@ -100,6 +102,7 @@ df_research = df_course[list_tf_res1 | list_tf_res2]
 df_research = df_research[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_research = df_research.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+df_research = df_research.drop_duplicates(["교과목명"], keep='last')
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_research["분류"] = "res"
 
@@ -260,6 +263,7 @@ for i in range(len(list_format)):
         df_undergraduate_course = df_undergraduate_course.sort_values(by=["최초개설년도", "최초개설학기"])
         # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
         df_undergraduate_course = df_undergraduate_course.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+        df_undergraduate_course = df_undergraduate_course.drop_duplicates(["교과목명"], keep='last')
         # GS 과목 및 UC 과목 외 대학원 과목 및 학사논문연구 교과목 제거
         if under != "GS" and under != "UC":
             df_undergraduate_course = df_undergraduate_course[df_undergraduate_course["일련번호"].str[0] <= "4"]
