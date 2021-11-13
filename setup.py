@@ -102,7 +102,6 @@ df_research = df_course[list_tf_res1 | list_tf_res2]
 df_research = df_research[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_research = df_research.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_research = df_research.drop_duplicates(["교과목명"], keep='last')
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_research["분류"] = "res"
 
