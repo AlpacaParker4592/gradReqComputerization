@@ -111,6 +111,23 @@ df_elect_pna_res = pd.concat([df_elective, df_physical_art, df_research])
 # 교양-예체능-연구 분류코드 리스트 생성
 list_elect_pna_res_code = list(dict.fromkeys(df_elect_pna_res["분류"].values.tolist()))
 
+# 4-3. 대학 전공별 데이터베이스
+# 대학 전공분야코드에 따라 선별한 개설강좌정보
+df_undergraduate = df_course[df_course["전공분야코드"].isin(list_undergraduate_major_code)]
+# 다음 조건에 따라 정렬
+df_undergraduate = df_undergraduate.sort_values(by=["최초개설년도", "최초개설학기"])
+# 같은 교과목명에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
+df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
+df_undergraduate = df_undergraduate.drop_duplicates(["교과목명"], keep='last')
+# GS 또는 UC 제외 대학원 및 연구과목(5XXX 이상) 제거
+df_undergraduate = df_undergraduate[(df_undergraduate["전공분야코드"] == "GS") |
+                                    (df_undergraduate["전공분야코드"] == "UC") |
+                                    (df_undergraduate["일련번호"].str[0] <= "4")]
+# 다음 조건에 따라 정렬
+df_undergraduate = df_undergraduate.sort_values(by='일련번호')
+# 컬럼명 재배열(최초개설년도 및 학기 삭제)
+df_undergraduate = df_undergraduate[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+
 
 # 데이터프레임을 엑셀에 저장
 list_format = [".xlsx", ".xlsm"]
@@ -258,19 +275,7 @@ for i in range(len(list_format)):
     start_col = 2
     for under in list_undergraduate_major_code:
         # 교양과목 분류에 따라 선별한 개설강좌정보
-        df_undergraduate_course = df_course[df_course["전공분야코드"] == under]
-        # 다음 조건에 따라 정렬
-        df_undergraduate_course = df_undergraduate_course.sort_values(by=["최초개설년도", "최초개설학기"])
-        # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
-        df_undergraduate_course = df_undergraduate_course.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-        df_undergraduate_course = df_undergraduate_course.drop_duplicates(["교과목명"], keep='last')
-        # GS 과목 및 UC 과목 외 대학원 과목 및 학사논문연구 교과목 제거
-        if under != "GS" and under != "UC":
-            df_undergraduate_course = df_undergraduate_course[df_undergraduate_course["일련번호"].str[0] <= "4"]
-        # 다음 조건에 따라 정렬
-        df_undergraduate_course = df_undergraduate_course.sort_values(by='일련번호')
-        # 컬럼명 재배열(최초개설년도 및 학기 삭제)
-        df_undergraduate_course = df_undergraduate_course[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
+        df_undergraduate_course = df_undergraduate[df_undergraduate["전공분야코드"] == under]
         # 정보를 각 셀에 입력
         func.excel_put_data(sheet=sheet, input_df=df_undergraduate_course, start_row=start_row, start_col=start_col)
         start_col += num_elect_pna_res_columns + 1
