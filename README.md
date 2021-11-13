@@ -102,7 +102,7 @@
 이 점 양해 부탁드립니다. 자세한 내용은 [**여기**](https://github.com/AlpacaParker4592/gradReqComputerization/issues/1)에서 확인하실 수 있습니다.
 + 해당 프로그램은 허락 없이 포크하여 사용하셔도 됩니다. 
 사용한 변수는 [Wiki 탭](https://github.com/AlpacaParker4592/gradReqComputerization/wiki)의
-"**더 나은 프로그램을 제작하고자 하시는 분들을 위한 도움말**(파일 및 변수 설명)" 항목에서 확인하실 수 있으며,
+"**더 나은 프로그램을 제작하고자 하시는 분들을 위한 도움말**" 항목에서 확인하실 수 있으며,
 제작하실 때는 [Issues 탭](https://github.com/AlpacaParker4592/gradReqComputerization/issues)의 내용을 고려하시면 되겠습니다.
 + 실행 중 오류가 발생하거나 나온 결과가 실제 반영되는 학점과 다른 사항을 발견할 시
 [**Github Issues**](https://github.com/AlpacaParker4592/gradReqComputerization/issues) 탭을 이용하거나(권장)
