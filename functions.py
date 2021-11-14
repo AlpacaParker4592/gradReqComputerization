@@ -6,6 +6,7 @@ import os
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.dataframe import dataframe_to_rows
+
 data_path = "./data/"
 
 
@@ -185,7 +186,7 @@ def summarize_student_information(ex_num):
     previous = pd.merge(previous, df_grade_value, how='inner', on=["평점"])
     # 데이터를 다음과 같이 정렬
     previous = previous.sort_values(by=['수강연도', "수강학기"], axis=0)
-    
+
     # 1-7. 정리한 성적표 데이터를 수강 기등록 과목 데이터에 넣기
     course_registration = previous
 
@@ -231,44 +232,29 @@ def summarize_student_information(ex_num):
             present_retake['일련번호'] = ""
             present_retake['과목명'] = ""
             present_retake = present_retake[['전공분야코드', '일련번호', '과목명']]
-        
+
         # 2-4. 현재수강화목의 평점 및 환산치 열 추가(값은 하이픈으로 지정)
         present["평점"] = "-"
         present["환산치"] = "-"
-
         # 3. 성적표 데이터(previous)와 현재 수강 과목(present) 통합
         if len(present) > 0:
             course_registration = pd.concat([previous, present], ignore_index=True)
 
         # 4. 현재 재수강하는 과목 데이터 제거(과목코드 기반)
         for row_num in range(len(present_retake)):
-            is_same_major_code = course_registration['전공분야코드'] == present_retake.iloc[row_num]['전공분야코드']
-            is_same_num_code = course_registration['일련번호'] == present_retake.iloc[row_num]['일련번호']
-
             # 재수강하는 과목이 여러 번 이수한 과목(예체능, 콜로퀴움 등)일 경우
             # 재수강 과목 중 처음 C0 이하 또는 U로 이수한 과목 하나를 삭제하도록 조정
-            tf_list = ~(is_same_major_code & is_same_num_code)
-            found_removal_obj = False  # 삭제 대상 발견 tf값(발견 전: false, 발견 후: true)
-            for tf_num in range(len(tf_list.tolist())):
-                # 제거 대상 과목 발견 이후의 모든 과목을 그대로 보존
-                if found_removal_obj:
-                    tf_list[tf_num] = True
-                    continue
-                # 수강 과목 목론에서 제거 대상 과목 발견 시 found_removal_obj 값을 true 값으로 바꿈
-                # type(tf_list[tf_num]) -> numpy.bool(bool 타입이 아니므로 not 대신 ~ 붙임)
-                if ~tf_list[tf_num] and course_registration.iloc[tf_num]['평점'] in ['C0', 'D+', 'D0', 'F', 'U']:
-                    found_removal_obj = True
-
-            # 제거 대상 과목을 발견하지 못했을 시(평점이 재이수 기준 이상인 경우)
-            # print 명령어로 알리고 삭제 대상 과목을 복원
-            if not found_removal_obj:
-                not_found_name = present_retake.iloc[row_num]['과목명']
-                not_found_code = present_retake.iloc[row_num]['전공분야코드'] + present_retake.iloc[row_num]['일련번호']
-                print('ALERT:  드롭 과목 중 과목명이 ' + not_found_name + '(과목 코드: ' + not_found_code + ')인 과목을 제거하지 못했습니다.')
-                for i in range(len(tf_list.tolist())):
-                    tf_list[i] = True
-            course_registration = course_registration[tf_list]
-
+            temp = course_registration[(course_registration['전공분야코드'] == present_retake.iloc[row_num]['전공분야코드']) &
+                                       (course_registration['일련번호'] == present_retake.iloc[row_num]['일련번호']) &
+                                       (course_registration['평점'].isin(['C0', 'D+', 'D0', 'F', 'U']))]
+            temp = temp.drop_duplicates(["전공분야코드", "일련번호"])
+            if len(temp) > 0:
+                course_registration.drop(temp.index, inplace=True)
+            else:
+                not_found_name = temp['과목명']
+                not_found_code = temp['전공분야코드'] + temp['일련번호']
+                print('ALERT:  드롭 과목 중 과목명이', not_found_name,
+                      '(과목 코드:', not_found_code, ')인 과목을 제거하지 못했습니다.')
     return student_number, course_registration
 
 
@@ -339,7 +325,7 @@ def excel_put_data(sheet, input_df, start_row, start_col):
             if row != start_row:
                 sheet.cell(row=row, column=col).border = thin_border
             # 수강횟수 셀의 경우 볼드처리
-            if col == start_col+len(input_df.columns)-1:
+            if col == start_col + len(input_df.columns) - 1:
                 sheet.cell(row=row, column=col).font = Font(bold=True)
             col += 1
         row += 1
@@ -357,12 +343,12 @@ def excel_width(sheet, start_col, list_width):
     """
     num_list_width = len(list_width)  # 각 표의 열 개수(num...+1은 앞 빈칸을 포함한 열 개수)
     if start_col == 0:
-        sheet.column_dimensions[get_column_letter(1+start_col*(num_list_width+1))].width = 1   # 빈 칸
+        sheet.column_dimensions[get_column_letter(1 + start_col * (num_list_width + 1))].width = 1  # 빈 칸
     else:
-        sheet.column_dimensions[get_column_letter(1+start_col*(num_list_width+1))].width = 3  # 빈 칸
+        sheet.column_dimensions[get_column_letter(1 + start_col * (num_list_width + 1))].width = 3  # 빈 칸
 
     for i in range(num_list_width):
-        sheet.column_dimensions[get_column_letter(1+start_col*(num_list_width+1) + (i+1))].width = list_width[i]
+        sheet.column_dimensions[get_column_letter(1 + start_col * (num_list_width + 1) + (i + 1))].width = list_width[i]
 
 
 def excel_row_height(sheet):
@@ -397,18 +383,18 @@ def excel_design(sheet, start_col, num_columns, light_color, dark_color):
     dark = PatternFill(start_color=dark_color, end_color=dark_color, fill_type='solid')
 
     # 셀 병합
-    sheet.merge_cells(start_row=4, start_column=(num_columns+1) * start_col + 2,
-                      end_row=4, end_column=(num_columns+1) * start_col + (num_columns+1))
+    sheet.merge_cells(start_row=4, start_column=(num_columns + 1) * start_col + 2,
+                      end_row=4, end_column=(num_columns + 1) * start_col + (num_columns + 1))
     # 색상 설정 및 글자 서식 반영
-    sheet.cell(row=4, column=(num_columns+1) * start_col + 2).fill = light
-    sheet.cell(row=4, column=(num_columns+1) * start_col + 2).alignment = Alignment(horizontal='center',
-                                                                                    vertical='center')
-    sheet.cell(row=4, column=(num_columns+1) * start_col + 2).font = Font(bold=True)
-    for i in range(2, (num_columns+1) + 1):
-        sheet.cell(row=5, column=(num_columns+1) * start_col + i).fill = dark
-        sheet.cell(row=5, column=(num_columns+1) * start_col + i).alignment = Alignment(horizontal='center',
-                                                                                        vertical='center')
-        sheet.cell(row=5, column=(num_columns+1) * start_col + i).font = Font(bold=True, color='FFFFFF')
+    sheet.cell(row=4, column=(num_columns + 1) * start_col + 2).fill = light
+    sheet.cell(row=4, column=(num_columns + 1) * start_col + 2).alignment = Alignment(horizontal='center',
+                                                                                      vertical='center')
+    sheet.cell(row=4, column=(num_columns + 1) * start_col + 2).font = Font(bold=True)
+    for i in range(2, (num_columns + 1) + 1):
+        sheet.cell(row=5, column=(num_columns + 1) * start_col + i).fill = dark
+        sheet.cell(row=5, column=(num_columns + 1) * start_col + i).alignment = Alignment(horizontal='center',
+                                                                                          vertical='center')
+        sheet.cell(row=5, column=(num_columns + 1) * start_col + i).font = Font(bold=True, color='FFFFFF')
 
 
 def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color):
@@ -431,13 +417,14 @@ def excel_explain_cell(sheet, str_title, str_contents, start_column, light_color
 
     # 내용 반영
     sheet.cell(row=2, column=start_column).value = str_title
-    sheet.cell(row=2, column=start_column+1).value = str_contents
+    sheet.cell(row=2, column=start_column + 1).value = str_contents
     # 선 디자인 반영
     sheet.cell(row=2, column=start_column).border = left_border
-    sheet.cell(row=2, column=start_column+1).border = right_border
+    sheet.cell(row=2, column=start_column + 1).border = right_border
     # 셀 색상 및 글꼴 굵기 반영(제목 부분)
     sheet.cell(row=2, column=start_column).fill = light
     sheet.cell(row=2, column=start_column).font = Font(bold=True)
     # 글자 서식 반영
     sheet.cell(row=2, column=start_column).alignment = Alignment(horizontal='center', vertical='center')
-    sheet.cell(row=2, column=start_column+1).alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+    sheet.cell(row=2, column=start_column + 1).alignment = Alignment(horizontal='left', vertical='center',
+                                                                     wrapText=True)
