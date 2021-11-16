@@ -78,7 +78,7 @@ list_major_code = list_undergraduate_major_code + list(dict.fromkeys(df_except_u
 df_elective = pd.merge(df_elective, df_course, how='inner', on=["전공분야코드", "일련번호", "교과목명"])
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_elective = df_elective.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_elective = df_elective.drop_duplicates(["교과목명"], keep='last')
+df_elective = df_elective.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
 df_elective = df_elective[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수", "분류"]]
 
@@ -90,7 +90,7 @@ df_physical_art = df_physical_art[df_physical_art["일련번호"].str.startswith
 df_physical_art = df_physical_art[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
 df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_physical_art = df_physical_art.drop_duplicates(["교과목명"], keep='last')
+df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_physical_art["분류"] = "pna"
 
@@ -117,7 +117,7 @@ df_undergraduate = df_course[df_course["전공분야코드"].isin(list_undergrad
 df_undergraduate = df_undergraduate.sort_values(by=["최초개설년도", "최초개설학기"])
 # 같은 교과목명에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
 df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_undergraduate = df_undergraduate.drop_duplicates(["교과목명"], keep='last')
+df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # GS 또는 UC 제외 대학원 및 연구과목(5XXX 이상) 제거
 df_undergraduate = df_undergraduate[(df_undergraduate["전공분야코드"] == "GS") |
                                     (df_undergraduate["전공분야코드"] == "UC") |
