@@ -24,7 +24,7 @@
 + 각 교과목 정보 및 수강횟수(코드쉐어 적용 과목 포함)
 
 ## Execution Process
-1. Code 버튼을 눌러 해당 폴더를 zip 파일로 내려받은 후 압축을 해제하십시오.
+1. 우측의 Releases 탭에서 적합한 버전을 선택하고 zip 파일로 내려받은 후 압축을 해제하십시오.
 2. 프로그램 실행 전 다음 파일을 괄호 안의 이름으로 Data 폴더 내에 저장해야 합니다.
     + ZEUS 내 xls 파일 다운로드 방법은 하단의 ***[Precaution for Users](#precaution-for-users)*** 문단을 참고 바랍니다.
 
