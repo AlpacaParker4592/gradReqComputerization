@@ -21,7 +21,7 @@
 
 ## Information Provided
 + 학번(15학번 이상) 및 전공별 졸업요건 만족 현황 및 학점 이수현황
-+ 각 교과목 정보 및 수강횟수(코드쉐어 적용 과목 포함)
++ 각 교과목 정보 및 수강횟수(코드쉐어 적용 과목 포함, 자세한 사항은 [다음 페이지](https://github.com/AlpacaParker4592/gradReqComputerization/releases/tag/v1.0.0) 참조)
 
 ## Execution Process
 1. 우측의 Releases 탭에서 적합한 버전을 선택하고 zip 파일로 내려받은 후 압축을 해제하십시오.
