@@ -35,14 +35,12 @@ df_elect_pna_res_explain = pd.read_excel("./data/code_explain.xlsx", sheet_name=
 # 3-1. 강좌개설정보 변수(df_course)에 수강 횟수 정보 추가
 df_course['수강횟수'] = 0
 # 평점이 U 또는 F인 과목은 제외
-df_student_not_u = df_student["평점"] != "U"
-df_student_not_f = df_student["평점"] != "F"
-df_student2 = df_student[df_student_not_u & df_student_not_f]
+df_student2 = df_student[(df_student["평점"] != "U") & (df_student["평점"] != "F")]
 
 for row in range(len(df_student)):
     # 3-2. "코드쉐어 과목 처리 방법" 중 1번 항목 시행
-    df_infected = df_course[df_course['전공분야코드'] == df_student2.iloc[row]['전공분야코드']]
-    df_infected = df_infected[df_infected['일련번호'] == df_student2.iloc[row]['일련번호']]
+    df_infected = df_course[(df_course['전공분야코드'] == df_student2.iloc[row]['전공분야코드']) &
+                            (df_course['일련번호'] == df_student2.iloc[row]['일련번호'])]
 
     # 3-3. "코드쉐어 과목 처리 방법" 중 2번 항목 시행
     df_total_infected = pd.DataFrame()
@@ -65,9 +63,9 @@ for row in range(len(df_student)):
 # 4. 엑셀 시트에 넣을 데이터프레임 세분화(이수과목 시트 제외)
 # 4-1. 과목 전체 정보 데이터프레임 정의 및 최초개설년도 및 학기 순으로 전공분야코드 정렬
 # 단, 다음 9개 코드는 순서대로 맨 앞에 정렬 - list_undergraduate_major_code(GS, UC, EC, MA, MC, EV, BS, CS, CH)
-df_except_ug_major_code = df_course[~df_course["전공분야코드"].isin(list_undergraduate_major_code)]
-df_except_ug_major_code = df_except_ug_major_code.groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min()
-df_except_ug_major_code = df_except_ug_major_code.sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
+df_except_ug_major_code = df_course[~df_course["전공분야코드"].isin(list_undergraduate_major_code)] \
+                                                            .groupby(["전공분야코드"], as_index=False)[["최초개설년도", "최초개설학기"]].min() \
+                                                            .sort_values(by=['최초개설년도', '최초개설학기', '전공분야코드'])
 # 정렬한 전공분야코드 리스트 생성
 list_major_code = list_undergraduate_major_code + list(dict.fromkeys(df_except_ug_major_code["전공분야코드"].values.tolist()))
 
@@ -77,27 +75,24 @@ list_major_code = list_undergraduate_major_code + list(dict.fromkeys(df_except_u
 # df_course 변수와 합쳐 교양 과목 변수(df_course)에 수강 횟수 정보 추가
 df_elective = pd.merge(df_elective, df_course, how='inner', on=["전공분야코드", "일련번호", "교과목명"])
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
-df_elective = df_elective.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_elective = df_elective.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
+df_elective = df_elective.drop_duplicates(["전공분야코드", "일련번호"], keep='last') \
+                         .drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
 df_elective = df_elective[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수", "분류"]]
 
 # 4-2-2. 예체능 데이터프레임 정의
-df_physical_art = df_course[df_course["전공분야코드"] == "GS"]
-df_physical_art = df_physical_art[df_physical_art["일련번호"].str.startswith("01") |
-                                  df_physical_art["일련번호"].str.startswith("02")]
+df_physical_art = df_course[(df_course["전공분야코드"] == "GS") &
+                            (df_course["일련번호"].str.startswith("01") | df_course["일련번호"].str.startswith("02"))]
 # 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
 df_physical_art = df_physical_art[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
-df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
+df_physical_art = df_physical_art.drop_duplicates(["전공분야코드", "일련번호"], keep='last') \
+                                 .drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # 예체능 과목의 "분류" 컬럼명 새로 추가
 df_physical_art["분류"] = "pna"
 
 # 4-2-3. 연구 과목 데이터프레임 정의
-list_tf_res1 = df_course["일련번호"] == "9102"
-list_tf_res2 = df_course["일련번호"] == "9103"
-df_research = df_course[list_tf_res1 | list_tf_res2]
+df_research = df_course[(df_course["일련번호"] == "9102") | (df_course["일련번호"] == "9103")]
 # 컬럼명 재배열(최초개설년도, 최초개설학기 삭제)
 df_research = df_research[["전공분야코드", "일련번호", "교과목명", "학점", "수강횟수"]]
 # 같은 교과목 코드에 최신 교과목 이외 나머지 교과목을 삭제(교양 학점 계산 목적)
@@ -116,8 +111,8 @@ df_undergraduate = df_course[df_course["전공분야코드"].isin(list_undergrad
 # 다음 조건에 따라 정렬
 df_undergraduate = df_undergraduate.sort_values(by=["최초개설년도", "최초개설학기"])
 # 같은 교과목명에 최신 교과목 이외 나머지 교과목을 삭제(전공 학점 계산 목적)
-df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "일련번호"], keep='last')
-df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "교과목명"], keep='last')
+df_undergraduate = df_undergraduate.drop_duplicates(["전공분야코드", "일련번호"], keep='last') \
+                                   .drop_duplicates(["전공분야코드", "교과목명"], keep='last')
 # GS 또는 UC 제외 대학원 및 연구과목(5XXX 이상) 제거
 df_undergraduate = df_undergraduate[(df_undergraduate["전공분야코드"] == "GS") |
                                     (df_undergraduate["전공분야코드"] == "UC") |
