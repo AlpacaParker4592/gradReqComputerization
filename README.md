@@ -30,7 +30,7 @@
 
     > + **기본 제공 파일**
     >    1. 템플릿 파일(```template.xlsm```(자동 필터링 기능 있음), ```template.xlsx```(자동 필터링 기능 없음))
-    >    2. 교양 과목 목록 파일(```elective_course_list.xlsx```)
+    >    2. 교양 과목 목록 파일(```elective_course_list.xlsx```, **2021년도**까지 업데이트 )
     > 
     > + **필수 저장 파일**
     >    1. **2015학년 1학기부터**의 대학 과목 정보 파일(```course_information_undergraduate.xls```)
